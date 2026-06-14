@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="{{ rootStyle }}">
+  <button type="button" disabled="{{ decDisabled }}" onClick="{{ onDec }}" aria-label="{{ decLabel }}" style="{{ decBtnStyle }}" style-active="{{ pressStyle }}" style-focus="{{ focusStyle }}">
+    <svg width="{{ glyph }}" height="{{ glyph }}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="10.7" width="16" height="2.6" rx="1.3"></rect></svg>
+  </button>
+  <div style="{{ readoutStyle }}">
+    <div style="{{ valueStyle }}">{{ value }}</div>
+    <sc-if value="{{ showMax }}" hint-placeholder-val="{{ true }}">
+      <div style="{{ maxStyle }}">{{ maxLabel }}</div>
+    </sc-if>
+    <sc-if value="{{ isHp }}" hint-placeholder-val="{{ false }}">
+      <div style="{{ barWrapStyle }}"><div style="{{ barStyle }}"></div></div>
+    </sc-if>
+  </div>
+  <button type="button" disabled="{{ incDisabled }}" onClick="{{ onInc }}" aria-label="{{ incLabel }}" style="{{ incBtnStyle }}" style-active="{{ pressStyle }}" style-focus="{{ focusStyle }}">
+    <svg width="{{ glyph }}" height="{{ glyph }}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="10.7" width="16" height="2.6" rx="1.3"></rect><rect x="10.7" y="4" width="2.6" height="16" rx="1.3"></rect></svg>
+  </button>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:260,&quot;height&quot;:96},&quot;value&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:7,&quot;tsType&quot;:&quot;number&quot;},&quot;max&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:12,&quot;tsType&quot;:&quot;number&quot;},&quot;min&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:0,&quot;tsType&quot;:&quot;number&quot;},&quot;tone&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;hp&quot;,&quot;options&quot;:[&quot;neutral&quot;,&quot;gold&quot;,&quot;nitra&quot;,&quot;hp&quot;,&quot;danger&quot;],&quot;tsType&quot;:&quot;string&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;lg&quot;,&quot;options&quot;:[&quot;md&quot;,&quot;lg&quot;],&quot;tsType&quot;:&quot;string&quot;},&quot;showMax&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;label&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;value&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;onDec&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;onInc&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const value = p.value ?? 0;
+    const min = p.min ?? 0;
+    const max = (p.max ?? 99);
+    const tone = p.tone ?? 'neutral';
+    const size = p.size ?? 'lg';
+    const showMax = p.showMax ?? false;
+    const label = p.label ?? 'value';
+
+    const big = size === 'lg';
+    const btn = big ? 58 : 46;
+    const glyph = big ? 24 : 20;
+    const numFont = big ? 30 : 21;
+
+    const decDisabled = value <= min;
+    const incDisabled = value >= max;
+
+    // tone -> readout color
+    const pct = max > 0 ? Math.max(0, Math.min(100, Math.round((value / max) * 100))) : 0;
+    let toneColor = '#f2f4f8';
+    if (tone === 'gold') toneColor = '#ffb000';
+    else if (tone === 'nitra') toneColor = '#4aa3ff';
+    else if (tone === 'danger') toneColor = '#ff5d5d';
+    else if (tone === 'hp') {
+      if (pct <= 25) toneColor = '#ff5d5d';
+      else if (pct <= 50) toneColor = '#ffb000';
+      else toneColor = '#4ade80';
+    }
+    const isHp = tone === 'hp';
+
+    const baseBtn = {
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      width: btn + 'px', height: btn + 'px', flex: '0 0 ' + btn + 'px',
+      background: '#222834', border: '1px solid #333a47', borderRadius: '12px',
+      color: '#e7ebf2', padding: 0, margin: 0,
+      transition: 'transform .09s ease, background .12s ease, opacity .12s ease, border-color .12s ease',
+      WebkitTapHighlightColor: 'transparent', userSelect: 'none', touchAction: 'manipulation',
+      outline: 'none'
+    };
+    const decBtnStyle = Object.assign({}, baseBtn, {
+      cursor: decDisabled ? 'not-allowed' : 'pointer',
+      opacity: decDisabled ? 0.28 : 1,
+      borderColor: decDisabled ? '#262c36' : '#333a47'
+    });
+    const incBtnStyle = Object.assign({}, baseBtn, {
+      cursor: incDisabled ? 'not-allowed' : 'pointer',
+      opacity: incDisabled ? 0.28 : 1,
+      background: incDisabled ? '#222834' : '#262d3a',
+      borderColor: incDisabled ? '#262c36' : '#3b4250',
+      color: incDisabled ? '#e7ebf2' : '#ffffff'
+    });
+
+    return {
+      rootStyle: { display: 'flex', alignItems: 'stretch', gap: big ? '10px' : '7px', width: '100%' },
+      readoutStyle: {
+        flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', gap: '2px',
+        background: '#13161c', border: '1px solid #20252f', borderRadius: '12px',
+        padding: big ? '6px 8px' : '4px 6px'
+      },
+      valueStyle: {
+        fontFamily: "'Saira Condensed', sans-serif", fontWeight: 600,
+        fontSize: numFont + 'px', lineHeight: 1, color: toneColor,
+        fontVariantNumeric: 'tabular-nums', letterSpacing: '0.01em'
+      },
+      maxStyle: {
+        fontFamily: "'IBM Plex Mono', monospace", fontSize: big ? '11px' : '10px',
+        color: '#6b7480', letterSpacing: '0.06em', lineHeight: 1
+      },
+      barWrapStyle: { width: big ? '76%' : '70%', height: big ? '5px' : '4px', background: '#0c0e12', borderRadius: '999px', overflow: 'hidden', marginTop: '3px' },
+      barStyle: { height: '100%', width: pct + '%', background: toneColor, borderRadius: '999px', transition: 'width .14s ease, background .14s ease' },
+      decBtnStyle, incBtnStyle,
+      pressStyle: { transform: 'scale(0.92)', background: '#2c3442' },
+      focusStyle: { boxShadow: '0 0 0 2px #0f1115, 0 0 0 4px #ffb000' },
+      glyph, value, maxLabel: '/ ' + max, showMax, isHp,
+      decDisabled, incDisabled,
+      decLabel: 'decrease ' + label, incLabel: 'increase ' + label,
+      onDec: p.onDec, onInc: p.onInc
+    };
+  }
+}
+</script>
+</body>
+</html>

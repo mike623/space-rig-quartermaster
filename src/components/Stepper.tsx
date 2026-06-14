@@ -11,11 +11,16 @@ interface StepperProps {
   size?: StepperSize;
   /** Show the "/ max" sublabel. */
   showMax?: boolean;
+  /** Show discrete pips (one per unit). Auto-on for hp tone. */
+  showPips?: boolean;
   /** Accessible label suffix, e.g. "Boomstick integrity". */
   label?: string;
 }
 
-function toneColor(tone: StepperTone, pct: number): string {
+/** Max units we render as discrete pips before falling back to a number only. */
+const PIP_LIMIT = 12;
+
+function readoutColor(tone: StepperTone, pct: number, value: number): string {
   switch (tone) {
     case "gold":
       return "var(--gold)";
@@ -24,12 +29,25 @@ function toneColor(tone: StepperTone, pct: number): string {
     case "danger":
       return "var(--danger)";
     case "hp":
-      if (pct <= 25) return "var(--danger)";
-      if (pct <= 50) return "var(--gold)";
+      if (pct <= 0.25 || value <= 1) return "var(--danger)";
+      if (pct <= 0.5) return "var(--gold)";
       return "var(--ok)";
     default:
       return "var(--text)";
   }
+}
+
+/** Per-pip fill color. HP shifts green→amber→red; ammo (neutral) reds out low. */
+function pipColor(tone: StepperTone, pct: number, value: number): string {
+  if (tone === "hp") {
+    if (pct <= 0.25 || value <= 1) return "var(--danger)";
+    if (pct <= 0.5) return "var(--gold)";
+    return "var(--ok)";
+  }
+  if (tone === "gold") return "var(--gold)";
+  if (tone === "nitra") return "var(--nitra)";
+  if (tone === "danger") return "var(--danger)";
+  return pct <= 0.25 ? "var(--danger)" : "#cdd4df";
 }
 
 const MinusGlyph = ({ s }: { s: number }) => (
@@ -44,8 +62,9 @@ const PlusGlyph = ({ s }: { s: number }) => (
   </svg>
 );
 
-/** Signature +/- control. Large touch targets, tabular numerals, integrated
- * HP bar (green→amber→red), disabled at bounds, amber focus ring. */
+/** Signature +/- control. Large touch targets, tabular numerals, discrete pip
+ * meter for small ranges (clearer than a thin bar), disabled at bounds,
+ * amber focus ring. */
 export function Stepper({
   value,
   min = 0,
@@ -55,13 +74,16 @@ export function Stepper({
   tone = "neutral",
   size = "lg",
   showMax = false,
+  showPips = false,
   label = "value"
 }: StepperProps) {
-  const pct = max > 0 ? Math.max(0, Math.min(100, Math.round((value / max) * 100))) : 0;
-  const color = toneColor(tone, pct);
+  const pct = max > 0 ? Math.max(0, Math.min(1, value / max)) : 0;
+  const color = readoutColor(tone, pct, value);
   const glyph = size === "lg" ? 24 : 20;
   const decDisabled = value <= min;
   const incDisabled = value >= max;
+  const usePips = (showPips || tone === "hp") && max > 0 && max <= PIP_LIMIT;
+  const fill = pipColor(tone, pct, value);
 
   return (
     <div className={`stepper ${size}`} role="group" aria-label={label}>
@@ -79,9 +101,15 @@ export function Stepper({
           {value}
         </div>
         {showMax && <div className="stepper-max">/ {max}</div>}
-        {tone === "hp" && (
-          <div className="stepper-bar">
-            <div style={{ width: `${pct}%`, background: color }} />
+        {usePips && (
+          <div className="stepper-pips" aria-hidden="true">
+            {Array.from({ length: max }, (_, i) => (
+              <span
+                key={i}
+                className="pip"
+                style={{ background: i < value ? fill : "#20252f" }}
+              />
+            ))}
           </div>
         )}
       </div>

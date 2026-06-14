@@ -9,3 +9,6 @@ build/
 !.env.example
 .omc/
 docs/private-source-documents/
+
+# external skill packages (skills.sh CLI)
+.agents/

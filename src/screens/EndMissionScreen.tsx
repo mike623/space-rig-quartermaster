@@ -162,7 +162,7 @@ export function EndMissionScreen() {
         </div>
       )}
 
-      <textarea placeholder="Notes…" value={notes} onChange={(e) => setNotes(e.target.value)} />
+      <textarea placeholder="Notes…" aria-label="Mission notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
 
       <button className="btn primary full" onClick={submit}>
         File Management Report

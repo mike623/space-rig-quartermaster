@@ -6,16 +6,17 @@ import type {
   SpendingEntry
 } from "./types";
 
+// Deadpan corporate voice (~5/10 humor): passive-aggressive memo, not jokes.
 const FLAVOUR_SUCCESS = [
-  "Quotas met. Management is mildly less disappointed.",
-  "Acceptable extraction. The bonus pool remains untouched.",
-  "Productivity within tolerance. Carry on, miners."
+  "Output logged. Performance: within acceptable parameters.",
+  "Quota satisfied. No further action required at this time.",
+  "Extraction noted. Your file has been updated accordingly."
 ];
 
 const FLAVOUR_FAILURE = [
-  "Objectives missed. This will be noted in your file.",
-  "Disappointing yield. Hazard pay is under review.",
-  "Management expected more. Management always expects more."
+  "Objectives incomplete. A note has been added to your file.",
+  "Yield below projection. Hazard pay remains under review.",
+  "Results received. Management has no further comment."
 ];
 
 export interface BuildReportInput {

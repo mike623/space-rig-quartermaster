@@ -73,14 +73,14 @@ export function CatalogEditor() {
           <label className="field-label">Catalog weapons</label>
           {cat.weapons.map((w, i) => (
             <div key={i} className="row" style={{ gap: 6 }}>
-              <input value={w.name} onChange={(e) => updateWeapon(i, "name", e.target.value)} style={{ flex: 2 }} />
-              <select value={w.slot} onChange={(e) => updateWeapon(i, "slot", e.target.value)} style={{ flex: 1 }}>
+              <input value={w.name} aria-label="catalog weapon name" onChange={(e) => updateWeapon(i, "name", e.target.value)} style={{ flex: 2 }} />
+              <select value={w.slot} aria-label="weapon slot" onChange={(e) => updateWeapon(i, "slot", e.target.value)} style={{ flex: 1 }}>
                 <option value="primary">{slotLabel("primary")}</option>
                 <option value="secondary">{slotLabel("secondary")}</option>
                 <option value="other">{slotLabel("other")}</option>
               </select>
-              <input type="number" value={w.maxAmmo} onChange={(e) => updateWeapon(i, "maxAmmo", e.target.value)} style={{ width: 64 }} />
-              <button className="btn danger" style={{ minHeight: 0, padding: "8px 10px" }} onClick={() => removeWeapon(i)}>✕</button>
+              <input type="number" value={w.maxAmmo} aria-label="max ammo" onChange={(e) => updateWeapon(i, "maxAmmo", e.target.value)} style={{ width: 64 }} />
+              <button className="btn danger" style={{ minHeight: 0, padding: "8px 10px" }} aria-label={`Remove ${w.name}`} onClick={() => removeWeapon(i)}>✕</button>
             </div>
           ))}
           <button className="btn ghost full" onClick={addWeapon}>+ Add catalog weapon</button>
@@ -88,7 +88,7 @@ export function CatalogEditor() {
           {LIST_FIELDS.map((f) => (
             <div key={f.key}>
               <label className="field-label">{f.label} (one per line)</label>
-              <textarea value={cat[f.key].join("\n")} onChange={(e) => setList(f.key, e.target.value)} />
+              <textarea value={cat[f.key].join("\n")} aria-label={`${f.label}, one per line`} onChange={(e) => setList(f.key, e.target.value)} />
             </div>
           ))}
 

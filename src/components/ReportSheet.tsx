@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useStore } from "../state/store";
 import { reportToText } from "../domain/report";
 import type { ManagementReport } from "../domain/types";
@@ -35,6 +36,16 @@ export function ReportSheet() {
   const report = useStore((s) => s.activeReport);
   const close = useStore((s) => s.closeReport);
   const showToast = useStore((s) => s.showToast);
+
+  useEffect(() => {
+    if (!report) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [report, close]);
+
   if (!report) return null;
 
   const isConfisc =
@@ -61,7 +72,13 @@ export function ReportSheet() {
 
   return (
     <div className="report-overlay" onClick={close}>
-      <div className="report-sheet" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="report-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${kindLabel}: ${title}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="report-perf" />
         <div className="report-body qm-scroll">
           <div
@@ -122,7 +139,7 @@ export function ReportSheet() {
               color: "#4a515d"
             }}
           >
-            · · ROCK &amp; STONE · ·
+            · · DIG DEEP · ·
           </div>
 
           <div className="row" style={{ gap: 9 }}>

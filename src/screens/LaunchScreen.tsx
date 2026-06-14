@@ -61,11 +61,12 @@ export function LaunchScreen() {
         <span className="section-label">Crew Readiness</span>
         {activeDwarves.map((d) => {
           const pct = d.maxHp > 0 ? d.hp / d.maxHp : 0;
-          const hpColor = pct <= 0.25 ? "var(--danger)" : pct <= 0.5 ? "var(--gold)" : "var(--ok)";
+          const lowHp = pct <= 0.25 || d.hp <= 1;
+          const hpColor = lowHp ? "var(--danger)" : pct <= 0.5 ? "var(--gold)" : "var(--ok)";
           const totalAmmo = d.weapons.reduce((a, w) => a + w.ammo, 0);
           const maxAmmo = d.weapons.reduce((a, w) => a + w.maxAmmo, 0);
           const lowAmmo = d.weapons.some((w) => w.equipped && w.maxAmmo > 0 && w.ammo / w.maxAmmo <= 0.25);
-          const ready = pct > 0.25 && !lowAmmo && !d.leftBehindLastMission;
+          const ready = !lowHp && !lowAmmo && !d.leftBehindLastMission;
           const sc = d.leftBehindLastMission ? "var(--danger)" : ready ? "var(--ok)" : "var(--gold)";
           return (
             <div key={d.id} className="row" style={{ gap: 10, padding: "11px 12px", background: "var(--surface)", border: `1px solid ${d.leftBehindLastMission ? "#3a2a30" : "var(--border-soft)"}`, borderRadius: 12 }}>

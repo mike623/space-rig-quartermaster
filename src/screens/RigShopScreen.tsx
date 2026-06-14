@@ -106,7 +106,7 @@ export function RigShopScreen() {
           ))}
         </div>
         {selectedDwarf && (
-          <select value={targetWeapon} onChange={(e) => setTargetWeapon(e.target.value)} style={{ fontSize: 14 }}>
+          <select value={targetWeapon} aria-label="target weapon" onChange={(e) => setTargetWeapon(e.target.value)} style={{ fontSize: 14 }}>
             <option value="">Weapon — for reload / ammo / upgrade / overdrive</option>
             {selectedDwarf.weapons.map((w) => (
               <option key={w.id} value={w.id}>
@@ -122,7 +122,7 @@ export function RigShopScreen() {
             <div key={item.id} className="weapon">
               <input value={item.label} onChange={(e) => updateItem(item.id, (i) => ({ ...i, label: e.target.value }))} style={{ fontWeight: 600 }} />
               <label className="field-label">Effect</label>
-              <select value={item.effect} onChange={(e) => updateItem(item.id, (i) => ({ ...i, effect: e.target.value as ShopEffectKind }))}>
+              <select value={item.effect} aria-label="effect" onChange={(e) => updateItem(item.id, (i) => ({ ...i, effect: e.target.value as ShopEffectKind }))}>
                 {EFFECT_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>{o.label}</option>
                 ))}
@@ -130,7 +130,7 @@ export function RigShopScreen() {
               <div className="grid-2" style={{ marginTop: 8 }}>
                 <div>
                   <label className="field-label">Currency</label>
-                  <select value={item.currency} onChange={(e) => updateItem(item.id, (i) => ({ ...i, currency: e.target.value as "gold" | "nitra" }))}>
+                  <select value={item.currency} aria-label="currency" onChange={(e) => updateItem(item.id, (i) => ({ ...i, currency: e.target.value as "gold" | "nitra" }))}>
                     <option value="gold">Gold</option>
                     <option value="nitra">Nitra</option>
                   </select>

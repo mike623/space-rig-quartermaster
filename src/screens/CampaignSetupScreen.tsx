@@ -58,7 +58,7 @@ export function CampaignSetupScreen() {
 
       <div>
         <label className="field-label">Campaign Name</label>
-        <input value={name} onChange={(e) => setName(e.target.value)} className="display" style={{ fontWeight: 600, fontSize: 18 }} />
+        <input value={name} aria-label="Campaign name" onChange={(e) => setName(e.target.value)} className="display" style={{ fontWeight: 600, fontSize: 18 }} />
       </div>
 
       <div>
@@ -97,7 +97,7 @@ export function CampaignSetupScreen() {
       <div>
         <label className="field-label">Seed</label>
         <div className="row" style={{ gap: 8 }}>
-          <input value={seed} onChange={(e) => setSeed(e.target.value)} className="mono" style={{ letterSpacing: "0.06em" }} />
+          <input value={seed} aria-label="Seed" onChange={(e) => setSeed(e.target.value)} className="mono" style={{ letterSpacing: "0.06em" }} />
           <button className="icon-btn" style={{ width: 52, height: "auto", color: "var(--gold)" }} aria-label="Reroll seed" onClick={() => setSeed(randomSeed())}>
             <RerollIcon />
           </button>

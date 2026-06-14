@@ -6,14 +6,15 @@ import type { ItemCatalog } from "./types";
 
 export function defaultCatalog(): ItemCatalog {
   return {
+    // Board-game scale: 5 ammo per weapon. All names generic/editable.
     weapons: [
-      { name: "Assault Rifle", slot: "primary", maxAmmo: 6 },
+      { name: "Assault Rifle", slot: "primary", maxAmmo: 5 },
       { name: "Combat Shotgun", slot: "primary", maxAmmo: 5 },
-      { name: "Heavy Autocannon", slot: "primary", maxAmmo: 8 },
-      { name: "Flame Projector", slot: "primary", maxAmmo: 6 },
-      { name: "Sidearm Pistol", slot: "secondary", maxAmmo: 4 },
-      { name: "Hand Cannon", slot: "secondary", maxAmmo: 4 },
-      { name: "Utility Tool", slot: "other", maxAmmo: 4 }
+      { name: "Heavy Autocannon", slot: "primary", maxAmmo: 5 },
+      { name: "Flame Projector", slot: "primary", maxAmmo: 5 },
+      { name: "Sidearm Pistol", slot: "secondary", maxAmmo: 5 },
+      { name: "Hand Cannon", slot: "secondary", maxAmmo: 5 },
+      { name: "Utility Tool", slot: "other", maxAmmo: 5 }
     ],
     upgrades: [
       "Extended Magazine",

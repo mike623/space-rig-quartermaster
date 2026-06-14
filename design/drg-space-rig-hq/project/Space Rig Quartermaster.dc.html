@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;}
+    .qm-scroll::-webkit-scrollbar{width:0;height:0;}
+    .qm-scroll{scrollbar-width:none;}
+    @keyframes qmToastIn{from{opacity:0;transform:translate(-50%,8px);}to{opacity:1;transform:translate(-50%,0);}}
+    @keyframes qmPop{0%{transform:scale(.96);opacity:.4;}100%{transform:scale(1);opacity:1;}}
+    @media (prefers-reduced-motion: reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important;}}
+  </style>
+</helmet>
+<div style="min-height:100vh;width:100%;background:radial-gradient(120% 80% at 50% 0%, #14171d 0%, #0a0b0d 60%);display:flex;flex-direction:column;align-items:center;gap:18px;padding:30px 16px 56px;font-family:'IBM Plex Sans',sans-serif;">
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;max-width:560px;">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.22em;color:#6b7480;text-transform:uppercase;">Interactive prototype · 390&times;820</div>
+    <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:27px;letter-spacing:0.01em;color:#f2f4f8;line-height:1.1;white-space:nowrap;">Space Rig Quartermaster</div>
+    <div style="font-size:12.5px;color:#8b93a1;line-height:1.55;max-width:440px;">A table-side campaign reducer for a co-op space-mining crew. Tap the steppers, switch screens, end a mission, launch the next.</div>
+  </div>
+
+  <div style="position:relative;width:390px;height:820px;background:#0f1115;border:1px solid #232831;border-radius:40px;box-shadow:0 40px 90px -30px rgba(0,0,0,.8), 0 0 0 10px #14161b, 0 0 0 11px #2a2f39;overflow:hidden;display:flex;flex-direction:column;">
+
+    <!-- status bar -->
+    <div style="flex:0 0 auto;height:42px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:#0f1115;">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:#cdd4df;letter-spacing:0.02em;">20:47</span>
+      <div style="display:flex;align-items:center;gap:6px;color:#cdd4df;">
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4.5" y="4.5" width="3" height="7.5" rx="1"/><rect x="9" y="2" width="3" height="10" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1" opacity=".4"/></svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.4c2 0 3.8.8 5.2 2.1l1.3-1.4C13 1.4 10.6.5 8 .5S3 1.4 1.5 3.1l1.3 1.4A7.3 7.3 0 0 1 8 2.4z"/><path d="M8 6c1 0 1.9.4 2.6 1.1l1.3-1.4A5.3 5.3 0 0 0 8 4.1c-1.5 0-2.8.6-3.9 1.6l1.3 1.4A3.5 3.5 0 0 1 8 6z"/><circle cx="8" cy="9.6" r="1.7"/></svg>
+        <div style="display:flex;align-items:center;gap:2px;"><div style="width:22px;height:11px;border:1.5px solid #cdd4df;border-radius:3px;padding:1.5px;"><div style="width:72%;height:100%;background:#cdd4df;border-radius:1px;"></div></div><div style="width:1.5px;height:4px;background:#cdd4df;border-radius:1px;"></div></div>
+      </div>
+    </div>
+
+    <!-- app header -->
+    <div style="flex:0 0 auto;background:linear-gradient(180deg,#13161c 0%,#0f1115 100%);border-bottom:1px solid #20252f;padding:8px 14px 11px;display:flex;flex-direction:column;gap:9px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button type="button" onClick="{{ goHome }}" aria-label="Campaigns" style="flex:0 0 auto;width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:#1b1f27;border:1px solid #2c313c;border-radius:11px;color:#cdd4df;cursor:pointer;" style-active="{{ pressDim }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 11 12 3l9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg></button>
+        <div style="flex:1 1 auto;min-width:0;">
+          <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:19px;line-height:1.05;color:#f2f4f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ campName }}</div>
+          <div style="display:flex;align-items:center;gap:7px;margin-top:2px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#ffb000;background:rgba(255,176,0,.1);border:1px solid rgba(255,176,0,.28);padding:1px 6px;border-radius:5px;">{{ modeLabel }}</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8b93a1;letter-spacing:0.03em;">{{ missionLabel }}</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="flex:1 1 0;display:flex;align-items:center;gap:8px;background:#15181e;border:1px solid #262c36;border-radius:11px;padding:7px 11px;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="#ffb000"><path d="M12 3l6.4 9-6.4 9-6.4-9z"/></svg>
+          <div style="display:flex;flex-direction:column;line-height:1;"><span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;color:#ffb000;font-variant-numeric:tabular-nums;">{{ teamGold }}</span><span style="font-size:9px;letter-spacing:0.12em;color:#6b7480;text-transform:uppercase;margin-top:2px;">Gold</span></div>
+        </div>
+        <div style="flex:1 1 0;display:flex;align-items:center;gap:8px;background:#15181e;border:1px solid #262c36;border-radius:11px;padding:7px 11px;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="#4aa3ff"><path d="M12 3l6.2 4.6-2.4 9.8H8.2L5.8 7.6z"/></svg>
+          <div style="display:flex;flex-direction:column;line-height:1;"><span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;color:#4aa3ff;font-variant-numeric:tabular-nums;">{{ teamNitra }}</span><span style="font-size:9px;letter-spacing:0.12em;color:#6b7480;text-transform:uppercase;margin-top:2px;">Nitra</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- scroll area -->
+    <div class="qm-scroll" style="flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;">
+      <div style="padding:14px 14px 88px;display:flex;flex-direction:column;gap:14px;">
+
+        <!-- ============ DWARVES ============ -->
+        <sc-if value="{{ isDwarves }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;">
+            <div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.2em;color:#6b7480;text-transform:uppercase;">Crew Roster</div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:24px;color:#f2f4f8;line-height:1.05;">{{ crewCount }} Dwarves Active</div>
+            </div>
+            <button type="button" onClick="{{ goEnd }}" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,176,0,.12);border:1px solid rgba(255,176,0,.3);color:#ffb000;font-size:12px;font-weight:600;padding:8px 12px;border-radius:10px;cursor:pointer;" style-active="{{ pressDim }}">End Mission</button>
+          </div>
+
+          <sc-for list="{{ dwarves }}" as="d" hint-placeholder-count="2">
+            <div style="{{ d.cardStyle }}">
+              <!-- card head -->
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+                <div style="min-width:0;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:21px;color:#f2f4f8;line-height:1;">{{ d.nickname }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#7a828f;">{{ d.playerTag }}</span>
+                  </div>
+                  <div style="display:inline-flex;align-items:center;gap:5px;margin-top:6px;background:#1b2027;border:1px solid #2c313c;border-radius:7px;padding:3px 8px;">
+                    <span style="width:7px;height:7px;border-radius:2px;background:#9aa3b2;"></span>
+                    <span style="font-size:11px;font-weight:600;letter-spacing:0.04em;color:#aab2c0;text-transform:uppercase;">{{ d.role }}</span>
+                  </div>
+                </div>
+                <div style="{{ d.statusChipStyle }}">{{ d.statusIcon }}<span>{{ d.statusLabel }}</span></div>
+              </div>
+
+              <!-- HP -->
+              <div style="display:flex;flex-direction:column;gap:7px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Integrity</span>
+                  <sc-if value="{{ d.critical }}" hint-placeholder-val="{{ false }}">
+                    <span style="display:inline-flex;align-items:center;gap:4px;color:#ff5d5d;font-size:10.5px;font-weight:700;letter-spacing:0.08em;"><svg width="13" height="13" viewBox="0 0 24 24" fill="#ff5d5d"><path d="M12 4.2 21 19.4H3z"/></svg>CRITICAL</span>
+                  </sc-if>
+                </div>
+                <dc-import name="Stepper" value="{{ d.hp }}" max="{{ d.maxHp }}" tone="hp" size="lg" show-max="{{ yes }}" label="{{ d.hpLabel }}" on-dec="{{ d.onHpDec }}" on-inc="{{ d.onHpInc }}" hint-size="100%,72px"></dc-import>
+              </div>
+
+              <!-- stat grid -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:0.14em;color:#8b93a1;text-transform:uppercase;">Grenades</span>
+                  <dc-import name="Stepper" value="{{ d.grenades }}" max="{{ cap }}" tone="neutral" size="md" label="grenades" on-dec="{{ d.onGrenDec }}" on-inc="{{ d.onGrenInc }}" hint-size="100%,52px"></dc-import>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:0.14em;color:#8b93a1;text-transform:uppercase;">Rally Cards</span>
+                  <dc-import name="Stepper" value="{{ d.cards }}" max="{{ cap }}" tone="neutral" size="md" label="rally cards" on-dec="{{ d.onCardDec }}" on-inc="{{ d.onCardInc }}" hint-size="100%,52px"></dc-import>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:0.14em;color:#8b93a1;text-transform:uppercase;">Upgrade Tokens</span>
+                  <dc-import name="Stepper" value="{{ d.tokens }}" max="{{ cap }}" tone="neutral" size="md" label="upgrade tokens" on-dec="{{ d.onTokDec }}" on-inc="{{ d.onTokInc }}" hint-size="100%,52px"></dc-import>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:0.14em;color:#ffb000;text-transform:uppercase;">Personal Gold</span>
+                  <dc-import name="Stepper" value="{{ d.personalGold }}" max="{{ cap }}" tone="gold" size="md" label="personal gold" on-dec="{{ d.onGoldDec }}" on-inc="{{ d.onGoldInc }}" hint-size="100%,52px"></dc-import>
+                </div>
+              </div>
+
+              <!-- loadout -->
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Loadout</span>
+                  <span style="font-size:11px;color:#6b7480;">{{ d.weaponCountLabel }}</span>
+                </div>
+                <sc-for list="{{ d.weapons }}" as="w" hint-placeholder-count="2">
+                  <div style="background:#1b2027;border:1px solid #272d38;border-radius:11px;padding:10px 11px;display:flex;flex-direction:column;gap:9px;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <span style="{{ w.slotMarkStyle }}">{{ w.slotMark }}</span>
+                      <div style="min-width:0;flex:1 1 auto;">
+                        <div style="font-size:14px;font-weight:600;color:#e7ebf2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ w.name }}</div>
+                        <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:0.1em;color:#7a828f;text-transform:uppercase;margin-top:1px;">{{ w.slotLabel }}</div>
+                      </div>
+                      <button type="button" onClick="{{ w.onToggleEquipped }}" style="{{ w.equipStyle }}" style-active="{{ pressDim }}">{{ w.equipLabel }}</button>
+                      <button type="button" onClick="{{ w.onToggleOverdrive }}" style="{{ w.odStyle }}" style-active="{{ pressDim }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3 5 13h5l-1 8 8-11h-5z"/></svg>OD</button>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:0.12em;color:#8b93a1;text-transform:uppercase;flex:0 0 38px;">Ammo</span>
+                      <div style="flex:1 1 auto;"><dc-import name="Stepper" value="{{ w.ammo }}" max="{{ w.maxAmmo }}" tone="{{ w.ammoTone }}" size="md" show-max="{{ yes }}" label="ammo" on-dec="{{ w.onAmmoDec }}" on-inc="{{ w.onAmmoInc }}" hint-size="100%,52px"></dc-import></div>
+                    </div>
+                    <sc-if value="{{ w.hasChips }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                        <sc-for list="{{ w.chips }}" as="c" hint-placeholder-count="1">
+                          <span style="{{ c.style }}">{{ c.label }}</span>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+
+              <!-- effects + notes -->
+              <sc-if value="{{ d.hasEffects }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:0.14em;color:#8b93a1;text-transform:uppercase;margin-right:2px;">Effects</span>
+                  <sc-for list="{{ d.effects }}" as="e" hint-placeholder-count="1">
+                    <span style="{{ e.style }}">{{ e.label }}</span>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ d.hasNotes }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:12px;color:#8b93a1;font-style:italic;line-height:1.45;border-left:2px solid #2c313c;padding-left:9px;">{{ d.notes }}</div>
+              </sc-if>
+
+              <!-- footer toggles -->
+              <div style="display:flex;gap:8px;border-top:1px solid #21262f;padding-top:11px;">
+                <button type="button" onClick="{{ d.onToggleLeftBehind }}" style="{{ d.leftBtnStyle }}" style-active="{{ pressDim }}">{{ d.leftBtnLabel }}</button>
+                <button type="button" onClick="{{ d.onToggleActive }}" style="{{ d.activeBtnStyle }}" style-active="{{ pressDim }}">{{ d.activeBtnLabel }}</button>
+              </div>
+            </div>
+          </sc-for>
+        </sc-if>
+
+        <!-- ============ END MISSION ============ -->
+        <sc-if value="{{ isEnd }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.2em;color:#6b7480;text-transform:uppercase;">Debrief</div>
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:24px;color:#f2f4f8;line-height:1.05;">End Mission</div>
+            <div style="font-size:12px;color:#8b93a1;margin-top:2px;">Recording {{ endMissionLabel }}</div>
+          </div>
+
+          <div style="display:flex;gap:9px;">
+            <button type="button" onClick="{{ onResultSuccess }}" style="{{ endSuccessStyle }}" style-active="{{ pressDim }}">Success</button>
+            <button type="button" onClick="{{ onResultFail }}" style="{{ endFailStyle }}" style-active="{{ pressDim }}">Failure</button>
+          </div>
+
+          <div style="background:#181b22;border:1px solid #262c36;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:11px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Objectives</span>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+              <span style="font-size:13.5px;color:#e7ebf2;font-weight:500;">Primary objective</span>
+              <button type="button" onClick="{{ onTogglePrimary }}" style="{{ endPrimaryStyle }}" style-active="{{ pressDim }}">{{ endPrimaryLabel }}</button>
+            </div>
+            <div style="height:1px;background:#21262f;"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+              <span style="font-size:13.5px;color:#e7ebf2;font-weight:500;">Secondary objective</span>
+              <button type="button" onClick="{{ onToggleSecondary }}" style="{{ endSecondaryStyle }}" style-active="{{ pressDim }}">{{ endSecondaryLabel }}</button>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Resources Recovered</span>
+            <div style="display:flex;align-items:center;gap:10px;background:#181b22;border:1px solid #262c36;border-radius:13px;padding:11px 12px;">
+              <div style="display:flex;align-items:center;gap:8px;flex:0 0 86px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="#ffb000"><path d="M12 3l6.4 9-6.4 9-6.4-9z"/></svg><span style="font-size:13px;font-weight:600;color:#ffb000;">Gold</span></div>
+              <div style="flex:1 1 auto;"><dc-import name="Stepper" value="{{ endGold }}" max="{{ cap }}" tone="gold" size="md" on-dec="{{ onEndGoldDec }}" on-inc="{{ onEndGoldInc }}" hint-size="100%,52px"></dc-import></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;background:#181b22;border:1px solid #262c36;border-radius:13px;padding:11px 12px;">
+              <div style="display:flex;align-items:center;gap:8px;flex:0 0 86px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="#4aa3ff"><path d="M12 3l6.2 4.6-2.4 9.8H8.2L5.8 7.6z"/></svg><span style="font-size:13px;font-weight:600;color:#4aa3ff;">Nitra</span></div>
+              <div style="flex:1 1 auto;"><dc-import name="Stepper" value="{{ endNitra }}" max="{{ cap }}" tone="nitra" size="md" on-dec="{{ onEndNitraDec }}" on-inc="{{ onEndNitraInc }}" hint-size="100%,52px"></dc-import></div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:9px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Who Escaped?</span>
+            <sc-for list="{{ escapedList }}" as="x" hint-placeholder-count="4">
+              <div style="{{ x.rowStyle }}">
+                <span style="font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:16px;color:#e7ebf2;">{{ x.nickname }}</span>
+                <button type="button" onClick="{{ x.onToggle }}" style="{{ x.btnStyle }}" style-active="{{ pressDim }}">{{ x.icon }}<span>{{ x.btnLabel }}</span></button>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="background:linear-gradient(180deg,rgba(255,176,0,.06),rgba(255,176,0,0));border:1px solid rgba(255,176,0,.25);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#ffb000;text-transform:uppercase;">Gold Split Preview</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#ffb000"><path d="M12 3l6.4 9-6.4 9-6.4-9z"/></svg>
+            </div>
+            <div style="display:flex;align-items:baseline;gap:8px;">
+              <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:38px;color:#ffb000;line-height:1;">{{ endShare }}</span>
+              <span style="font-size:13px;color:#aab2c0;">Gold to each of {{ endEscCount }} survivors</span>
+            </div>
+            <div style="font-size:12px;color:#8b93a1;border-top:1px dashed rgba(255,176,0,.25);padding-top:9px;">Leftover <b style="color:#e7ebf2;">{{ endLeftover }}</b> Gold rolls into the team vault.</div>
+          </div>
+
+          <sc-if value="{{ endHasLeft }}" hint-placeholder-val="{{ false }}">
+            <div style="background:rgba(255,93,93,.05);border:1px solid rgba(255,93,93,.25);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;align-items:center;gap:7px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="#ff8a8a"><path d="M12 4.2 21 19.4H3z"/></svg><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#ff8a8a;text-transform:uppercase;">Left-Behind Penalty · Soft</span></div>
+              <div style="font-size:13px;color:#e7ebf2;font-weight:600;">{{ endLeftNames }}</div>
+              <div style="font-size:12px;color:#9aa3b2;line-height:1.5;">Returns at full HP, weapons reloaded. Loses grenades, rally cards & uninstalled upgrades. Keeps permanent progression.</div>
+            </div>
+          </sc-if>
+
+          <button type="button" onClick="{{ onFileReport }}" style="display:inline-flex;align-items:center;justify-content:center;gap:9px;background:#ffb000;border:none;color:#1a1407;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:17px;letter-spacing:0.03em;text-transform:uppercase;padding:16px;border-radius:13px;cursor:pointer;" style-active="{{ pressDim }}"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h9l5 5v13H6z" opacity=".25"/><path d="M6 3h9l5 5v13a0 0 0 0 1 0 0H6a0 0 0 0 1 0 0zm9 1.5V8h3.5z"/><path d="M9 12h6v1.6H9zm0 3h6v1.6H9z" fill="#1a1407"/></svg>File Management Report</button>
+        </sc-if>
+
+        <!-- ============ HOME ============ -->
+        <sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;">
+            <div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.2em;color:#6b7480;text-transform:uppercase;">Saved Campaigns</div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:24px;color:#f2f4f8;line-height:1.05;">Pick a Dig</div>
+            </div>
+          </div>
+          <sc-for list="{{ homeCampaigns }}" as="c" hint-placeholder-count="3">
+            <div style="{{ c.cardStyle }}">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+                <div style="min-width:0;">
+                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:19px;color:#f2f4f8;line-height:1.1;">{{ c.name }}</div>
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#7a828f;margin-top:4px;">{{ c.last }}</div>
+                </div>
+                <span style="{{ c.modeStyle }}">{{ c.modeLabel }}</span>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:12px;">
+                <button type="button" onClick="{{ c.onOpen }}" style="{{ c.openStyle }}" style-active="{{ pressDim }}">{{ c.openLabel }}</button>
+                <button type="button" onClick="{{ c.onDelete }}" aria-label="Delete campaign" style="flex:0 0 auto;width:42px;display:flex;align-items:center;justify-content:center;background:#1b1f27;border:1px solid #2c313c;border-radius:10px;color:#8b93a1;cursor:pointer;" style-active="{{ pressDim }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6V4.5A1.5 1.5 0 0 1 8.5 3h7A1.5 1.5 0 0 1 17 4.5V6h3v2h-1.1l-.8 11.1A2 2 0 0 1 16.1 21H7.9a2 2 0 0 1-2-1.9L5.1 8H4V6zm2 0h6V5H9z"/></svg></button>
+              </div>
+            </div>
+          </sc-for>
+          <div style="display:flex;gap:8px;margin-top:2px;">
+            <button type="button" onClick="{{ goSetup }}" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#ffb000;border:none;color:#1a1407;font-size:14px;font-weight:700;padding:14px;border-radius:12px;cursor:pointer;" style-active="{{ pressDim }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11 11V4h2v7h7v2h-7v7h-2v-7H4v-2z"/></svg>New Campaign</button>
+            <button type="button" onClick="{{ onImport }}" style="flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#1b1f27;border:1px solid #2c313c;color:#cdd4df;font-size:13px;font-weight:600;padding:14px 16px;border-radius:12px;cursor:pointer;" style-active="{{ pressDim }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M11 3h2v9.2l3.1-3.1 1.4 1.4L12 16 6.5 10.5l1.4-1.4L11 12.2zM5 19h14v2H5z"/></svg>Import</button>
+          </div>
+        </sc-if>
+
+        <!-- ============ RIG SHOP ============ -->
+        <sc-if value="{{ isShop }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;">
+            <div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.2em;color:#6b7480;text-transform:uppercase;">Between Missions</div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:24px;color:#f2f4f8;line-height:1.05;">Rig Shop</div>
+            </div>
+            <button type="button" onClick="{{ onEditCatalog }}" style="display:inline-flex;align-items:center;gap:6px;background:#1b1f27;border:1px solid #2c313c;color:#aab2c0;font-size:12px;font-weight:600;padding:8px 11px;border-radius:10px;cursor:pointer;" style-active="{{ pressDim }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M14.06 6.19l3.75 3.75L8.06 19.7 3 21l1.3-5.06zM20.7 5.63l-2.34 2.34-3.75-3.75 2.34-2.34a1 1 0 0 1 1.42 0l2.33 2.33a1 1 0 0 1 0 1.42z"/></svg>Edit</button>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:9px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Spending On</span>
+            <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;" class="qm-scroll">
+              <sc-for list="{{ shopTargets }}" as="t" hint-placeholder-count="4">
+                <button type="button" onClick="{{ t.onSelect }}" style="{{ t.style }}" style-active="{{ pressDim }}">{{ t.nickname }}</button>
+              </sc-for>
+            </div>
+          </div>
+
+          <sc-for list="{{ shopGroups }}" as="g" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:9px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">{{ g.label }}</span>
+                <div style="flex:1 1 auto;height:1px;background:#21262f;"></div>
+              </div>
+              <sc-for list="{{ g.items }}" as="i" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:11px;background:#181b22;border:1px solid #262c36;border-radius:13px;padding:12px 13px;">
+                  <div style="flex:1 1 auto;min-width:0;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <span style="font-size:14.5px;font-weight:600;color:#e7ebf2;">{{ i.name }}</span>
+                      <span style="{{ i.costChipStyle }}">{{ i.costLabel }}</span>
+                    </div>
+                    <div style="font-size:12px;color:#8b93a1;margin-top:3px;line-height:1.4;">{{ i.note }}</div>
+                  </div>
+                  <button type="button" onClick="{{ i.onBuy }}" style="{{ i.buyStyle }}" style-active="{{ pressDim }}">{{ i.buyLabel }}</button>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+
+          <sc-if value="{{ hasSpend }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#15181e;border:1px solid #21262f;border-radius:13px;padding:13px;display:flex;flex-direction:column;gap:9px;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Recent Spending</span>
+              <sc-for list="{{ spendLog }}" as="sl" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;">
+                  <span style="color:#cdd4df;"><b style="font-weight:600;color:#e7ebf2;">{{ sl.label }}</b> <span style="color:#6b7480;">→ {{ sl.target }}</span></span>
+                  <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:15px;color:{{ sl.color }};">{{ sl.costLabel }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </sc-if>
+
+        <!-- ============ LAUNCH ============ -->
+        <sc-if value="{{ isLaunch }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.2em;color:#6b7480;text-transform:uppercase;">Pre-Descent</div>
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:24px;color:#f2f4f8;line-height:1.05;">Launch Check</div>
+          </div>
+
+          <div style="position:relative;overflow:hidden;background:linear-gradient(135deg,#1a1e26 0%,#15181e 100%);border:1px solid #2c313c;border-radius:16px;padding:15px;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Next Assignment</div>
+            <div style="display:flex;align-items:baseline;gap:9px;margin-top:6px;">
+              <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:13px;color:#ffb000;background:rgba(255,176,0,.12);border:1px solid rgba(255,176,0,.3);padding:2px 8px;border-radius:6px;">#{{ launchNum }}</span>
+              <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:23px;color:#f2f4f8;">{{ launchBiome }}</span>
+            </div>
+            <div style="font-size:13px;color:#aab2c0;margin-top:3px;">{{ launchType }}</div>
+            <sc-if value="{{ launchHasWarnings }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:11px;">
+                <sc-for list="{{ launchWarnings }}" as="w" hint-placeholder-count="2">
+                  <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;letter-spacing:0.03em;color:#ffce6b;background:rgba(255,176,0,.08);border:1px solid rgba(255,176,0,.28);padding:4px 9px;border-radius:999px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="#ffce6b"><path d="M12 4.2 21 19.4H3z"/></svg>{{ w.label }}</span>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Crew Readiness</span>
+            <sc-for list="{{ launchReady }}" as="d" hint-placeholder-count="4">
+              <div style="{{ d.rowStyle }}">
+                {{ d.statusIcon }}
+                <div style="flex:1 1 auto;min-width:0;">
+                  <div style="display:flex;align-items:center;gap:7px;"><span style="font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:16px;color:#e7ebf2;">{{ d.nickname }}</span><span style="font-size:10.5px;font-weight:600;color:{{ d.statusColor }};text-transform:uppercase;letter-spacing:0.04em;">{{ d.statusLabel }}</span></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;">
+                  <span style="color:{{ d.hpColor }};font-weight:600;">{{ d.hpLabel }}</span>
+                  <span style="color:{{ d.ammoColor }};">{{ d.ammoLabel }}</span>
+                  <span style="color:#7a828f;">{{ d.grenLabel }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="background:rgba(255,176,0,.06);border:1px solid rgba(255,176,0,.3);border-radius:16px;padding:15px;display:flex;flex-direction:column;gap:11px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="#ffb000"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 10 4.6-1.5 8-5 8-10V5z"/></svg>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.14em;color:#ffb000;text-transform:uppercase;">Management Confiscation</span>
+            </div>
+            <p style="margin:0;font-size:13px;color:#cdd4df;line-height:1.55;">Anything left in the vault at launch becomes Company property. Spend it at the Rig Shop or kiss it goodbye.</p>
+            <div style="display:flex;gap:10px;">
+              <div style="flex:1 1 0;display:flex;align-items:center;gap:9px;background:#15181e;border:1px solid #2c313c;border-radius:11px;padding:10px 12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="#ffb000"><path d="M12 3l6.4 9-6.4 9-6.4-9z"/></svg><div style="line-height:1;"><div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:21px;color:#ffb000;">{{ launchGold }}</div><div style="font-size:9px;letter-spacing:0.12em;color:#6b7480;text-transform:uppercase;margin-top:2px;">Gold at risk</div></div></div>
+              <div style="flex:1 1 0;display:flex;align-items:center;gap:9px;background:#15181e;border:1px solid #2c313c;border-radius:11px;padding:10px 12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="#4aa3ff"><path d="M12 3l6.2 4.6-2.4 9.8H8.2L5.8 7.6z"/></svg><div style="line-height:1;"><div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:21px;color:#4aa3ff;">{{ launchNitra }}</div><div style="font-size:9px;letter-spacing:0.12em;color:#6b7480;text-transform:uppercase;margin-top:2px;">Nitra at risk</div></div></div>
+            </div>
+          </div>
+
+          <sc-if value="{{ isLaunchStep1 }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#181b22;border:1px solid #3a3220;border-radius:16px;padding:15px;display:flex;flex-direction:column;gap:12px;animation:qmPop .18s ease;">
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;color:#f2f4f8;">Confirm confiscation</div>
+              <div style="font-size:13px;color:#aab2c0;line-height:1.55;">Launching <b style="color:#e7ebf2;">{{ launchBiome }}</b> will zero the vault: <b style="color:#ffb000;">{{ launchGold }} Gold</b> and <b style="color:#4aa3ff;">{{ launchNitra }} Nitra</b> go to Management. This can be undone until the next result is recorded.</div>
+              <div style="display:flex;gap:9px;">
+                <button type="button" onClick="{{ onLaunchCancel }}" style="flex:0 0 auto;background:#1b1f27;border:1px solid #2c313c;color:#cdd4df;font-size:13px;font-weight:600;padding:14px 18px;border-radius:12px;cursor:pointer;" style-active="{{ pressDim }}">Cancel</button>
+                <button type="button" onClick="{{ onLaunchConfirm }}" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#ffb000;border:none;color:#1a1407;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.04em;text-transform:uppercase;padding:14px;border-radius:12px;cursor:pointer;" style-active="{{ pressDim }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.2l6.4 7.6h-3.8v9.2h-5.2v-9.2H5.6z"/></svg>Confiscate &amp; Launch</button>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isLaunchStep0 }}" hint-placeholder-val="{{ true }}">
+            <button type="button" onClick="{{ onLaunchReview }}" style="display:inline-flex;align-items:center;justify-content:center;gap:9px;background:#222834;border:1px solid #3b4250;color:#f2f4f8;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:17px;letter-spacing:0.04em;text-transform:uppercase;padding:16px;border-radius:13px;cursor:pointer;" style-active="{{ pressDim }}"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.2l6.4 7.6h-3.8v9.2h-5.2v-9.2H5.6z"/></svg>Review Launch</button>
+          </sc-if>
+        </sc-if>
+
+        <!-- ============ HISTORY ============ -->
+        <sc-if value="{{ isHistory }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.2em;color:#6b7480;text-transform:uppercase;">Campaign Record</div>
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:24px;color:#f2f4f8;line-height:1.05;">History</div>
+          </div>
+
+          <div style="display:flex;gap:9px;">
+            <button type="button" onClick="{{ onExportState }}" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#1b1f27;border:1px solid #2c313c;color:#e7ebf2;font-size:12.5px;font-weight:600;padding:12px;border-radius:11px;cursor:pointer;" style-active="{{ pressDim }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3v9.2l3.1-3.1 1.4 1.4L12 16 6.5 10.5l1.4-1.4L11 12.2V3zM5 19h14v2H5z"/></svg>State JSON</button>
+            <button type="button" onClick="{{ onExportRecipe }}" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#1b1f27;border:1px solid #2c313c;color:#e7ebf2;font-size:12.5px;font-weight:600;padding:12px;border-radius:11px;cursor:pointer;" style-active="{{ pressDim }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3v9.2l3.1-3.1 1.4 1.4L12 16 6.5 10.5l1.4-1.4L11 12.2V3zM5 19h14v2H5z"/></svg>Recipe JSON</button>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:9px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Assignment Recipe · {{ seedLabel }}</span>
+            <sc-for list="{{ recipe }}" as="m" hint-placeholder-count="5">
+              <div style="{{ m.rowStyle }}">
+                <span style="{{ m.dotStyle }}"></span>
+                <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:16px;color:{{ m.numColor }};flex:0 0 26px;">#{{ m.n }}</span>
+                <div style="flex:1 1 auto;min-width:0;">
+                  <div style="font-size:14px;font-weight:600;color:#e7ebf2;">{{ m.biome }}</div>
+                  <div style="font-size:11.5px;color:#8b93a1;">{{ m.type }}</div>
+                </div>
+                <sc-if value="{{ m.isCurrent }}" hint-placeholder-val="{{ false }}"><span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:0.08em;color:#ffb000;text-transform:uppercase;">Current</span></sc-if>
+              </div>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ hasLog }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:9px;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Mission Log</span>
+              <sc-for list="{{ log }}" as="h" hint-placeholder-count="2">
+                <button type="button" onClick="{{ h.onOpen }}" style="text-align:left;display:flex;align-items:center;gap:11px;background:#181b22;border:1px solid #262c36;border-radius:12px;padding:12px 13px;cursor:pointer;" style-active="{{ pressDim }}">
+                  <div style="flex:1 1 auto;min-width:0;">
+                    <div style="display:flex;align-items:center;gap:8px;"><span style="font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:15px;color:#e7ebf2;">{{ h.title }}</span><span style="{{ h.kindStyle }}">{{ h.kindLabel }}</span></div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#7a828f;margin-top:3px;">{{ h.ts }}</div>
+                  </div>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#6b7480"><path d="M9 6l6 6-6 6"/></svg>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <div style="display:flex;flex-direction:column;gap:9px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Item Catalog</span>
+              <button type="button" onClick="{{ onEditItem }}" style="display:inline-flex;align-items:center;gap:5px;background:transparent;border:none;color:#ffb000;font-size:12px;font-weight:600;cursor:pointer;padding:2px;" style-active="{{ pressDim }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M14.06 6.19l3.75 3.75L8.06 19.7 3 21l1.3-5.06zM20.7 5.63l-2.34 2.34-3.75-3.75 2.34-2.34a1 1 0 0 1 1.42 0l2.33 2.33a1 1 0 0 1 0 1.42z"/></svg>Edit</button>
+            </div>
+            <div style="background:#15181e;border:1px solid #21262f;border-radius:13px;overflow:hidden;">
+              <sc-for list="{{ catalogList }}" as="i" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:10px;padding:10px 13px;border-bottom:1px solid #1c212a;">
+                  <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:14px;color:{{ i.color }};flex:0 0 34px;">{{ i.costLabel }}</span>
+                  <div style="flex:1 1 auto;min-width:0;"><div style="font-size:13.5px;font-weight:600;color:#e7ebf2;">{{ i.name }}</div><div style="font-size:11px;color:#8b93a1;">{{ i.note }}</div></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ============ SETUP ============ -->
+        <sc-if value="{{ isSetup }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.2em;color:#6b7480;text-transform:uppercase;">Configure</div>
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:24px;color:#f2f4f8;line-height:1.05;">New Campaign</div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Campaign Name</span>
+            <button type="button" onClick="{{ onNameEdit }}" style="text-align:left;font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:18px;color:#f2f4f8;background:#181b22;border:1px solid #2c313c;border-radius:12px;padding:13px 14px;cursor:text;" style-focus="{{ pressDim }}">{{ setupName }}</button>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Mode</span>
+            <div style="display:flex;gap:8px;">
+              <sc-for list="{{ setupModes }}" as="m" hint-placeholder-count="3"><button type="button" onClick="{{ m.onSelect }}" style="{{ m.style }}" style-active="{{ pressDim }}">{{ m.label }}</button></sc-for>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Players</span>
+            <div style="display:flex;gap:8px;">
+              <sc-for list="{{ setupCounts }}" as="n" hint-placeholder-count="4"><button type="button" onClick="{{ n.onSelect }}" style="{{ n.style }}" style-active="{{ pressDim }}">{{ n.n }}</button></sc-for>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Difficulty</span>
+            <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;" class="qm-scroll">
+              <sc-for list="{{ setupDiffs }}" as="d" hint-placeholder-count="5"><button type="button" onClick="{{ d.onSelect }}" style="{{ d.style }}" style-active="{{ pressDim }}">{{ d.label }}</button></sc-for>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Seed</span>
+            <div style="display:flex;gap:8px;">
+              <div style="flex:1 1 auto;display:flex;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500;color:#cdd4df;letter-spacing:0.06em;background:#181b22;border:1px solid #2c313c;border-radius:12px;padding:13px 14px;">{{ setupSeed }}</div>
+              <button type="button" onClick="{{ onReroll }}" aria-label="Reroll seed" style="flex:0 0 auto;width:52px;display:flex;align-items:center;justify-content:center;background:#1b1f27;border:1px solid #2c313c;color:#ffb000;border-radius:12px;cursor:pointer;" style-active="{{ pressDim }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V2L8 6l4 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg></button>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#8b93a1;text-transform:uppercase;">Crew Roles</span>
+            <sc-for list="{{ setupRoles }}" as="r" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#181b22;border:1px solid #262c36;border-radius:12px;padding:11px 13px;">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8b93a1;letter-spacing:0.04em;">{{ r.slot }}</span>
+                <button type="button" onClick="{{ r.onCycle }}" style="display:inline-flex;align-items:center;gap:6px;font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:15px;color:#e7ebf2;background:#222834;border:1px solid #333a47;border-radius:9px;padding:7px 13px;cursor:pointer;" style-active="{{ pressDim }}">{{ r.role }}<svg width="13" height="13" viewBox="0 0 24 24" fill="#7a828f"><path d="M7 10l5 5 5-5z"/></svg></button>
+              </div>
+            </sc-for>
+          </div>
+
+          <button type="button" onClick="{{ onCreate }}" style="display:inline-flex;align-items:center;justify-content:center;gap:9px;background:#ffb000;border:none;color:#1a1407;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:17px;letter-spacing:0.04em;text-transform:uppercase;padding:16px;border-radius:13px;cursor:pointer;margin-top:2px;" style-active="{{ pressDim }}">Assemble Crew</button>
+        </sc-if>
+
+      </div>
+    </div>
+
+    <!-- bottom nav -->
+    <div style="flex:0 0 auto;display:flex;background:rgba(15,17,21,.96);border-top:1px solid #20252f;padding:7px 6px 9px;">
+      <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
+        <button type="button" onClick="{{ n.onClick }}" aria-label="{{ n.label }}" style="{{ n.btnStyle }}" style-active="{{ pressDim }}">
+          <span style="{{ n.indicatorStyle }}"></span>
+          {{ n.icon }}
+          <span style="{{ n.labelStyle }}">{{ n.label }}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <!-- management report overlay -->
+    <sc-if value="{{ hasReport }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;z-index:60;background:rgba(6,7,9,.72);backdrop-filter:blur(3px);display:flex;flex-direction:column;justify-content:flex-end;padding:0;">
+        <div onClick="{{ onReportClose }}" style="flex:1 1 auto;cursor:pointer;"></div>
+        <div style="background:#14161b;border-top:1px solid #2c313c;border-radius:20px 20px 0 0;box-shadow:0 -20px 50px -16px rgba(0,0,0,.7);animation:qmPop .2s ease;max-height:78%;display:flex;flex-direction:column;">
+          <div style="position:relative;height:18px;border-radius:20px 20px 0 0;background:repeating-linear-gradient(90deg,#14161b 0,#14161b 8px,#0f1115 8px,#0f1115 16px);"></div>
+          <div class="qm-scroll" style="overflow-y:auto;padding:4px 20px 20px;display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;border-bottom:2px solid #2c313c;padding-bottom:13px;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.28em;color:{{ reportAccent }};text-transform:uppercase;">{{ reportKindLabel }}</div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:22px;color:#f2f4f8;line-height:1.1;">{{ reportTitle }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#7a828f;">{{ reportTs }}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;font-family:'IBM Plex Mono',monospace;font-size:12.5px;">
+              <sc-for list="{{ reportLines }}" as="ln" hint-placeholder-count="6">
+                <div style="{{ ln.rowStyle }}">
+                  <span style="color:#8b93a1;text-transform:uppercase;letter-spacing:0.04em;font-size:11px;">{{ ln.k }}</span>
+                  <span style="color:#e7ebf2;font-weight:500;text-align:right;">{{ ln.v }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="font-style:italic;font-size:12.5px;color:#aab2c0;line-height:1.55;text-align:center;border-top:2px dashed #2c313c;padding-top:13px;">&ldquo;{{ reportFlavour }}&rdquo;</div>
+            <div style="text-align:center;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.3em;color:#4a515d;">· · ROCK &amp; STONE · ·</div>
+            <div style="display:flex;gap:9px;">
+              <button type="button" onClick="{{ onReportCopy }}" style="flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#222834;border:1px solid #333a47;color:#e7ebf2;font-size:13px;font-weight:600;padding:13px;border-radius:11px;cursor:pointer;" style-active="{{ pressDim }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 3h8a2 2 0 0 1 2 2v10h-2V5H9zM5 7h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"/></svg>Copy text</button>
+              <button type="button" onClick="{{ onReportClose }}" style="flex:1 1 0;background:#ffb000;border:none;color:#1a1407;font-size:13px;font-weight:700;padding:13px;border-radius:11px;cursor:pointer;" style-active="{{ pressDim }}">Done</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- toast -->
+    <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+      <div style="{{ toastStyle }}">{{ toastIcon }}<span>{{ toastMsg }}</span></div>
+    </sc-if>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:422,&quot;height&quot;:880}}">
+class Component extends DCLogic {
+  _missionFlavours = [
+    'Resources logged. Management notes your survival with mild surprise.',
+    'Quota met. The vault thanks you for your continued sacrifice.',
+    'Adequate output. A commemorative nothing has been added to your file.',
+    'Profitable enough. Management takes its cut and wishes you well.'
+  ];
+  _confiscFlavours = [
+    'Unspent funds are now Company funds. Rock responsibly.',
+    'What you did not spend, Management has spent for you.',
+    'The vault is sealed. Better luck hoarding next quarter.'
+  ];
+  state = {
+    route: 'dwarves',
+    launchStep: 0,
+    toast: null,
+    activeReport: null,
+    end: { result: 'success', primary: true, secondary: false, gold: 9, nitra: 4, escaped: { d1: true, d2: true, d3: true, d4: false } },
+    shopTargetId: 'd2',
+    setup: { name: 'New Expedition', mode: 'economy', count: 4, difficulty: 'regular', seed: 'OREBOUND-42', roles: ['Gunner', 'Surveyor', 'Engineer', 'Driller'] },
+    spendLog: [
+      { id: 'sl1', label: 'Field Medic', target: 'Lowlight', cost: 1, currency: 'gold' },
+      { id: 'sl2', label: 'Reload Cell', target: 'Vulcan Repeater', cost: 1, currency: 'nitra' }
+    ],
+    catalog: [
+      { id: 'c1', name: 'Reload Cell', cost: 1, currency: 'nitra', note: 'Restore 1 ammo to any weapon' },
+      { id: 'c2', name: 'Field Medic', cost: 1, currency: 'gold', note: 'Fully heal one dwarf' },
+      { id: 'c3', name: 'Full Reload', cost: 1, currency: 'gold', note: 'Fully reload one weapon' },
+      { id: 'c4', name: 'Frag Requisition', cost: 1, currency: 'gold', note: 'Record a grenade gained' },
+      { id: 'c5', name: 'Brew Ticket', cost: 1, currency: 'gold', note: 'Record an active brew' },
+      { id: 'c6', name: 'Mod Install I', cost: 1, currency: 'gold', note: 'First upgrade on a weapon' },
+      { id: 'c7', name: 'Mod Install II', cost: 2, currency: 'gold', note: 'Second upgrade on a weapon' },
+      { id: 'c8', name: 'Rally Card', cost: 2, currency: 'gold', note: 'Gain a rally card' },
+      { id: 'c9', name: 'Recon Sweep', cost: 2, currency: 'gold', note: 'Reveal all ? tokens' },
+      { id: 'c10', name: 'Upgrade Token', cost: 2, currency: 'gold', note: 'Gain an upgrade token' },
+      { id: 'c11', name: 'Team Brew Round', cost: 3, currency: 'gold', note: 'Active brew for every dwarf' },
+      { id: 'c12', name: 'Deep Scan', cost: 3, currency: 'gold', note: 'Reveal hidden map sections' },
+      { id: 'c13', name: 'Hazard Scrub', cost: 3, currency: 'gold', note: 'Remove one active Warning' }
+    ],
+    history: [
+      { id: 'h2', kind: 'report', title: 'Mission 2 — Magma Core', result: 'success', ts: 'Yesterday · 22:14', lines: [['Result', 'Success'], ['Primary objective', 'Complete'], ['Secondary objective', 'Failed'], ['Gold recovered', '+12g'], ['Nitra recovered', '+6n'], ['Gold split', '3 per dwarf · 0 to vault'], ['Casualties', 'None']], flavour: 'Acceptable margins. Management is cautiously unimpressed.' },
+      { id: 'h1', kind: 'report', title: 'Mission 1 — Crystal Caverns', result: 'success', ts: 'Yesterday · 20:02', lines: [['Result', 'Success'], ['Primary objective', 'Complete'], ['Secondary objective', 'Complete'], ['Gold recovered', '+8g'], ['Nitra recovered', '+3n'], ['Gold split', '2 per dwarf · 0 to vault'], ['Casualties', 'None']], flavour: 'A tidy debut. Do not let it go to your beards.' }
+    ],
+    campaign: {
+      name: 'Management Takes Its Cut',
+      mode: 'economy', modeLabel: 'Economy',
+      difficulty: 'hazard4', difficultyLabel: 'Hazard 4',
+      seed: 'OREBOUND-42',
+      missionIndex: 2,
+      teamGold: 9, teamNitra: 4
+    },
+    missions: [
+      { n: 1, type: 'Extraction', biome: 'Crystal Caverns', status: 'done', warnings: [] },
+      { n: 2, type: 'Salvage', biome: 'Magma Core', status: 'done', warnings: ['Lethal Enemies'] },
+      { n: 3, type: 'Hatch Retrieval', biome: 'Glacial Strata', status: 'current', warnings: ['Low Oxygen', 'Cave Swarm'] },
+      { n: 4, type: 'Refinery', biome: 'Fungal Bog', status: 'upcoming', warnings: ['Gold Rush'] },
+      { n: 5, type: 'Elimination', biome: 'Salt Pits', status: 'upcoming', warnings: ['Lethal Enemies', 'Power Outage'] }
+    ],
+    homeCampaigns: [
+      { id: 'cm1', name: 'Management Takes Its Cut', mode: 'economy', modeLabel: 'Economy', last: 'Today · Mission 3 of 5', active: true },
+      { id: 'cm2', name: 'Greenbeard Shakedown', mode: 'official', modeLabel: 'Official', last: '2 days ago · Mission 2 of 3', active: false },
+      { id: 'cm3', name: 'Deeper Than Sense', mode: 'deeper', modeLabel: 'Deeper Dive', last: 'Last week · Campaign complete', active: false }
+    ],
+    dwarves: [
+      { id: 'd1', player: 'Mara', nickname: 'Boomstick', role: 'Gunner', hp: 7, maxHp: 12, grenades: 2, cards: 1, tokens: 1, personalGold: 3, active: true, leftBehind: false, notes: 'Holds the line at the drop pod. Do not let her run dry.', effects: [{ label: 'Brew', kind: 'good' }], weapons: [ { id: 'w1', name: 'Vulcan Repeater', slot: 'primary', ammo: 80, maxAmmo: 120, equipped: true, overdrive: true, upgrades: 2 }, { id: 'w2', name: 'Sidewinder', slot: 'secondary', ammo: 6, maxAmmo: 12, equipped: true, overdrive: false, upgrades: 1 } ] },
+      { id: 'd2', player: 'Tev', nickname: 'Lowlight', role: 'Surveyor', hp: 3, maxHp: 10, grenades: 0, cards: 0, tokens: 0, personalGold: 2, active: true, leftBehind: false, notes: '', effects: [], weapons: [ { id: 'w3', name: 'Pulse Carbine', slot: 'primary', ammo: 12, maxAmmo: 40, equipped: true, overdrive: false, upgrades: 0 }, { id: 'w4', name: 'Flare Pistol', slot: 'secondary', ammo: 3, maxAmmo: 6, equipped: true, overdrive: false, upgrades: 0 } ] },
+      { id: 'd3', player: 'Doss', nickname: 'Rivet', role: 'Engineer', hp: 9, maxHp: 9, grenades: 1, cards: 2, tokens: 0, personalGold: 1, active: true, leftBehind: false, notes: 'Two turrets on the chokepoint, every time.', effects: [{ label: 'Shielded', kind: 'good' }], weapons: [ { id: 'w5', name: 'Rivet Gun', slot: 'primary', ammo: 30, maxAmmo: 36, equipped: true, overdrive: false, upgrades: 2 }, { id: 'w6', name: 'Sentry Link', slot: 'other', ammo: 2, maxAmmo: 2, equipped: false, overdrive: false, upgrades: 1 } ] },
+      { id: 'd4', player: 'Bune', nickname: 'Cave Mole', role: 'Driller', hp: 6, maxHp: 11, grenades: 3, cards: 1, tokens: 1, personalGold: 0, active: true, leftBehind: true, notes: 'Left behind in the magma core. Owes the team a round.', effects: [{ label: 'Concussed', kind: 'bad' }], weapons: [ { id: 'w7', name: 'Heat Bore', slot: 'primary', ammo: 40, maxAmmo: 50, equipped: true, overdrive: false, upgrades: 1 }, { id: 'w8', name: 'Slug Pistol', slot: 'secondary', ammo: 5, maxAmmo: 8, equipped: true, overdrive: true, upgrades: 0 } ] }
+    ]
+  };
+
+  // ---- icon helper ----
+  icon(name, size, color) {
+    const h = React.createElement;
+    const c = color || 'currentColor';
+    const sw = { width: size || 22, height: size || 22, viewBox: '0 0 24 24', fill: c, 'aria-hidden': 'true', style: { display: 'block', flex: '0 0 auto' } };
+    const P = {
+      crew: ['M12 4.5a7.5 7.5 0 0 0-7.5 7.5v.6h15v-.6A7.5 7.5 0 0 0 12 4.5z', 'M3 13h18v2.6H3z'],
+      end: ['M6 3h1.8v18H6z', 'M8.2 4.2h10.6l-2.8 3.9 2.8 3.9H8.2z'],
+      shop: ['M4.4 11.3 11.6 4.1h7.9v7.9L12.3 19.2 4.4 11.3z'],
+      launch: ['M12 3.2l6.4 7.6h-3.8v9.2h-5.2v-9.2H5.6z'],
+      log: ['M4 6h16v2.4H4z', 'M4 10.8h16v2.4H4z', 'M4 15.6h10.5v2.4H4z']
+    };
+    const kids = (P[name] || []).map((d, i) => h('path', { key: i, d: d }));
+    if (name === 'shop') kids.push(h('circle', { key: 'hole', cx: 15.7, cy: 7.9, r: 1.5, fill: '#0f1115' }));
+    return h('svg', sw, kids);
+  }
+
+  // ---- mutations ----
+  updateDwarf(id, fn) {
+    this.setState(s => ({ dwarves: s.dwarves.map(d => d.id === id ? fn(Object.assign({}, d)) : d) }));
+  }
+  clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  adjHp(id, delta) { this.updateDwarf(id, d => { d.hp = this.clamp(d.hp + delta, 0, d.maxHp); return d; }); }
+  adjField(id, field, delta) { this.updateDwarf(id, d => { d[field] = this.clamp((d[field] || 0) + delta, 0, 99); return d; }); }
+  adjAmmo(id, wid, delta) { this.updateDwarf(id, d => { d.weapons = d.weapons.map(w => w.id === wid ? Object.assign({}, w, { ammo: this.clamp(w.ammo + delta, 0, w.maxAmmo) }) : w); return d; }); }
+  toggleWeapon(id, wid, key) { this.updateDwarf(id, d => { d.weapons = d.weapons.map(w => w.id === wid ? Object.assign({}, w, { [key]: !w[key] }) : w); return d; }); }
+  toggleDwarf(id, key) {
+    this.updateDwarf(id, d => { d[key] = !d[key]; return d; });
+    if (key === 'leftBehind') this.toast('Left-behind status updated', 'warn');
+  }
+
+  toast(msg, kind) {
+    this.setState({ toast: { msg, kind: kind || 'ok' } });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: null }), 2300);
+  }
+  nav(route) { this.setState({ route, launchStep: 0, activeReport: null }); }
+
+  // ---- view-model helpers ----
+  chip(label, color, bg, border) {
+    return { label, style: { display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '10.5px', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: color, background: bg, border: '1px solid ' + border, borderRadius: '6px', padding: '3px 7px', fontFamily: "'IBM Plex Sans', sans-serif" } };
+  }
+  slotMark(slot) {
+    const h = React.createElement;
+    const col = '#9aa3b2';
+    if (slot === 'primary') return h('svg', { width: 12, height: 12, viewBox: '0 0 12 12', fill: col }, h('rect', { x: 1.5, y: 1.5, width: 9, height: 9, rx: 1.5 }));
+    if (slot === 'secondary') return h('svg', { width: 12, height: 12, viewBox: '0 0 12 12', fill: col }, h('path', { d: 'M6 1.5 10.5 10h-9z' }));
+    return h('svg', { width: 12, height: 12, viewBox: '0 0 12 12', fill: col }, h('circle', { cx: 6, cy: 6, r: 4.6 }));
+  }
+
+  pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  exportState() { const c = this.state.campaign; try { navigator.clipboard.writeText(JSON.stringify({ schemaVersion: 1, appVersion: '0.1.0', kind: 'campaign-state', campaign: { name: c.name, mode: c.mode, seed: c.seed, difficulty: c.difficulty, currentMissionIndex: c.missionIndex, resources: { teamGold: c.teamGold, teamNitra: c.teamNitra }, players: this.state.dwarves } }, null, 2)); } catch (e) {} this.toast('Campaign state JSON copied', 'ok'); }
+  exportRecipe() { const c = this.state.campaign; try { navigator.clipboard.writeText(JSON.stringify({ schemaVersion: 1, appVersion: '0.1.0', kind: 'campaign-recipe', recipe: { seed: c.seed, difficulty: c.difficulty, missions: this.state.missions.map(m => ({ n: m.n, type: m.type, biome: m.biome, warnings: m.warnings })) } }, null, 2)); } catch (e) {} this.toast('Recipe JSON copied', 'ok'); }
+  setSetup(patch) { this.setState(s => ({ setup: Object.assign({}, s.setup, patch) })); }
+  rerollSeed() { const words = ['OREBOUND', 'DEEPCUT', 'COLDVEIN', 'MAGMA', 'SALTWAKE', 'GLINT', 'HOLLOW']; const seed = this.pick(words) + '-' + (10 + Math.floor(Math.random() * 89)); this.setSetup({ seed }); this.toast('New seed rolled', 'ok'); }
+  cycleRole(i) { const opts = ['Surveyor', 'Engineer', 'Gunner', 'Driller', 'Custom']; this.setState(s => { const roles = s.setup.roles.slice(); const cur = opts.indexOf(roles[i]); roles[i] = opts[(cur + 1) % opts.length]; return { setup: Object.assign({}, s.setup, { roles }) }; }); }
+  setCount(n) { this.setState(s => { const roles = s.setup.roles.slice(); while (roles.length < n) roles.push('Custom'); return { setup: Object.assign({}, s.setup, { count: n, roles: roles.slice(0, 4) }) }; }); }
+  createCampaign() { this.setState({ route: 'dwarves' }); this.toast('Campaign created · crew assembled', 'ok'); }
+  setEnd(patch) { this.setState(s => ({ end: Object.assign({}, s.end, patch) })); }
+  adjEnd(field, delta) { this.setState(s => ({ end: Object.assign({}, s.end, { [field]: Math.max(0, (s.end[field] || 0) + delta) }) })); }
+  toggleEscaped(id) { this.setState(s => ({ end: Object.assign({}, s.end, { escaped: Object.assign({}, s.end.escaped, { [id]: !s.end.escaped[id] }) }) })); }
+  setShopTarget(id) { this.setState({ shopTargetId: id }); }
+
+  reportText(r) {
+    let t = '— AUTOMATED MANAGEMENT DISPATCH —\n' + r.title + '\n' + r.ts + '\n\n';
+    r.lines.forEach(l => { t += l[0].toUpperCase() + ': ' + l[1] + '\n'; });
+    t += '\n' + r.flavour + '\n— ROCK & STONE —\n';
+    return t;
+  }
+  openReport(r) { this.setState({ activeReport: r }); }
+  closeReport() { this.setState({ activeReport: null }); }
+  copyReport(r) { try { navigator.clipboard.writeText(this.reportText(r)); } catch (e) {} this.toast('Report copied to clipboard', 'ok'); }
+
+  fileReport() {
+    const s = this.state, e = s.end, c = s.campaign;
+    const escaped = s.dwarves.filter(d => d.active && e.escaped[d.id]);
+    const left = s.dwarves.filter(d => d.active && !e.escaped[d.id]);
+    const cnt = escaped.length;
+    const share = cnt > 0 ? Math.floor(e.gold / cnt) : 0;
+    const leftover = e.gold - share * cnt;
+    const m = s.missions[c.missionIndex];
+    const lines = [['Result', e.result === 'success' ? 'Success' : 'Failure'], ['Primary objective', e.primary ? 'Complete' : 'Failed'], ['Secondary objective', e.secondary ? 'Complete' : 'Skipped'], ['Gold recovered', '+' + e.gold + 'g'], ['Nitra recovered', '+' + e.nitra + 'n'], ['Gold split', share + ' per dwarf · ' + leftover + ' to vault']];
+    if (left.length) { lines.push(['Left behind', left.map(d => d.nickname).join(', ')]); lines.push(['Penalty', 'Soft reset queued']); }
+    else lines.push(['Casualties', 'None — rare']);
+    const report = { id: 'h' + Date.now(), kind: 'report', title: 'Mission ' + (c.missionIndex + 1) + ' — ' + m.biome, result: e.result, ts: 'Today · 20:53', lines, flavour: this.pick(this._missionFlavours) };
+    this.setState(st => ({
+      campaign: Object.assign({}, st.campaign, { teamGold: st.campaign.teamGold + e.gold, teamNitra: st.campaign.teamNitra + e.nitra }),
+      history: [report].concat(st.history),
+      activeReport: report,
+      dwarves: st.dwarves.map(d => (d.active && !e.escaped[d.id]) ? Object.assign({}, d, { leftBehind: true }) : d)
+    }));
+    this.toast('Report filed · resources banked', 'ok');
+  }
+
+  buy(item) {
+    const c = this.state.campaign;
+    const bal = item.currency === 'gold' ? c.teamGold : c.teamNitra;
+    if (bal < item.cost) { this.toast('Not enough ' + (item.currency === 'gold' ? 'Gold' : 'Nitra'), 'err'); return; }
+    const tgt = (this.state.dwarves.find(d => d.id === this.state.shopTargetId) || {}).nickname || 'Team';
+    const entry = { id: 'sl' + Date.now(), label: item.name, target: tgt, cost: item.cost, currency: item.currency };
+    this.setState(st => ({
+      campaign: Object.assign({}, st.campaign, item.currency === 'gold' ? { teamGold: st.campaign.teamGold - item.cost } : { teamNitra: st.campaign.teamNitra - item.cost }),
+      spendLog: [entry].concat(st.spendLog).slice(0, 8)
+    }));
+    this.toast(item.name + ' → ' + tgt, 'ok');
+  }
+
+  launchConfirm() {
+    if (this.state.launchStep === 0) { this.setState({ launchStep: 1 }); return; }
+    const s = this.state, c = s.campaign;
+    const next = s.missions[c.missionIndex + 1];
+    const lines = [['Gold confiscated', '-' + c.teamGold + 'g'], ['Nitra confiscated', '-' + c.teamNitra + 'n'], ['Next assignment', next ? '#' + next.n + ' · ' + next.biome : 'Campaign end'], ['Status', 'Cleared for descent']];
+    const report = { id: 'h' + Date.now(), kind: 'confiscation', title: 'Confiscation Notice — Pre-Launch', result: 'confiscation', ts: 'Today · 20:58', lines, flavour: this.pick(this._confiscFlavours) };
+    this.setState(st => {
+      const ni = Math.min(st.campaign.missionIndex + 1, st.missions.length - 1);
+      const missions = st.missions.map((mm, i) => Object.assign({}, mm, { status: i < ni ? 'done' : i === ni ? 'current' : 'upcoming' }));
+      return { campaign: Object.assign({}, st.campaign, { teamGold: 0, teamNitra: 0, missionIndex: ni }), missions, history: [report].concat(st.history), activeReport: report, launchStep: 0 };
+    });
+    this.toast('Resources confiscated · descent authorised', 'warn');
+  }
+  launchCancel() { this.setState({ launchStep: 0 }); }
+
+  renderVals() {
+    const s = this.state;
+    const c = s.campaign;
+    const route = s.route;
+    const yes = true;
+
+    // header
+    const totalMissions = s.missions.length;
+    const missionLabel = 'Mission ' + (c.missionIndex + 1) + ' / ' + totalMissions;
+
+    // nav
+    const navDefs = [
+      { key: 'dwarves', label: 'Crew', icon: 'crew' },
+      { key: 'end', label: 'End', icon: 'end' },
+      { key: 'shop', label: 'Shop', icon: 'shop' },
+      { key: 'launch', label: 'Launch', icon: 'launch' },
+      { key: 'history', label: 'Log', icon: 'log' }
+    ];
+    const navItems = navDefs.map(n => {
+      const active = route === n.key;
+      const col = active ? '#ffb000' : '#7a828f';
+      return {
+        key: n.key, label: n.label,
+        onClick: () => this.nav(n.key),
+        icon: this.icon(n.icon, 22, col),
+        btnStyle: { position: 'relative', flex: '1 1 0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', padding: '8px 2px 5px', background: 'transparent', border: 'none', cursor: 'pointer', minHeight: '52px', borderRadius: '12px', WebkitTapHighlightColor: 'transparent' },
+        labelStyle: { fontSize: '10px', fontWeight: active ? 700 : 500, letterSpacing: '0.04em', color: col, textTransform: 'uppercase', fontFamily: "'IBM Plex Sans', sans-serif" },
+        indicatorStyle: { position: 'absolute', top: '0', width: active ? '26px' : '0', height: '3px', borderRadius: '0 0 4px 4px', background: '#ffb000', transition: 'width .15s ease' }
+      };
+    });
+
+    // dwarves VM
+    const dwarves = s.dwarves.map(d => {
+      const pct = d.maxHp > 0 ? d.hp / d.maxHp : 0;
+      const critical = pct <= 0.25;
+      const benched = !d.active;
+      let statusLabel = 'Active', statusColor = '#4ade80', statusIconName = 'check';
+      if (d.leftBehind) { statusLabel = 'Left Behind'; statusColor = '#ff5d5d'; statusIconName = 'warn'; }
+      else if (benched) { statusLabel = 'Benched'; statusColor = '#7a828f'; statusIconName = 'dot'; }
+      const h = React.createElement;
+      let statusIcon = null;
+      if (statusIconName === 'check') statusIcon = h('svg', { width: 12, height: 12, viewBox: '0 0 24 24', fill: statusColor }, h('path', { d: 'M9.6 16.2 4.8 11.4l1.7-1.7 3.1 3.1 7.2-7.2 1.7 1.7z' }));
+      else if (statusIconName === 'warn') statusIcon = h('svg', { width: 12, height: 12, viewBox: '0 0 24 24', fill: statusColor }, h('path', { d: 'M12 4.2 21 19.4H3z' }));
+      else statusIcon = h('span', { style: { width: '7px', height: '7px', borderRadius: '50%', background: statusColor, display: 'block' } });
+
+      const weapons = d.weapons.map(w => {
+        const aTone = (w.maxAmmo > 0 && w.ammo / w.maxAmmo <= 0.25) ? 'danger' : 'neutral';
+        const chips = [];
+        for (let i = 0; i < w.upgrades; i++) chips.push(this.chip(i === 0 ? 'Mod I' : 'Mod II', '#aab2c0', '#20252f', '#2f3540'));
+        if (w.overdrive) chips.push(this.chip('Overdrive', '#ffb000', 'rgba(255,176,0,.1)', 'rgba(255,176,0,.3)'));
+        const equipOn = w.equipped;
+        return {
+          id: w.id, name: w.name, slot: w.slot,
+          slotLabel: w.slot === 'other' ? 'Support' : w.slot,
+          slotMark: this.slotMark(w.slot),
+          slotMarkStyle: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '7px', background: '#13161c', border: '1px solid #272d38', flex: '0 0 auto' },
+          ammo: w.ammo, maxAmmo: w.maxAmmo, ammoTone: aTone,
+          equipLabel: equipOn ? 'Equipped' : 'Stowed',
+          equipStyle: { display: 'inline-flex', alignItems: 'center', gap: '4px', flex: '0 0 auto', fontSize: '10.5px', fontWeight: 600, letterSpacing: '0.03em', padding: '6px 9px', borderRadius: '8px', cursor: 'pointer', whiteSpace: 'nowrap', color: equipOn ? '#4ade80' : '#7a828f', background: equipOn ? 'rgba(74,222,128,.12)' : '#15181e', border: '1px solid ' + (equipOn ? 'rgba(74,222,128,.32)' : '#272d38') },
+          odStyle: { display: 'inline-flex', alignItems: 'center', gap: '3px', flex: '0 0 auto', fontSize: '10.5px', fontWeight: 700, letterSpacing: '0.03em', padding: '6px 8px', borderRadius: '8px', cursor: 'pointer', color: w.overdrive ? '#ffb000' : '#5b626e', background: w.overdrive ? 'rgba(255,176,0,.12)' : '#15181e', border: '1px solid ' + (w.overdrive ? 'rgba(255,176,0,.32)' : '#272d38') },
+          hasChips: chips.length > 0, chips,
+          onAmmoDec: () => this.adjAmmo(d.id, w.id, -1),
+          onAmmoInc: () => this.adjAmmo(d.id, w.id, +1),
+          onToggleEquipped: () => this.toggleWeapon(d.id, w.id, 'equipped'),
+          onToggleOverdrive: () => this.toggleWeapon(d.id, w.id, 'overdrive')
+        };
+      });
+
+      const effects = d.effects.map(e => {
+        if (e.kind === 'bad') return this.chip(e.label, '#ff8a8a', 'rgba(255,93,93,.1)', 'rgba(255,93,93,.28)');
+        return this.chip(e.label, '#7fe0a5', 'rgba(74,222,128,.1)', 'rgba(74,222,128,.28)');
+      });
+
+      const cardBorder = d.leftBehind ? '#52303a' : (benched ? '#23272f' : '#262c36');
+      return {
+        id: d.id, nickname: d.nickname, playerTag: '@' + d.player, role: d.role,
+        hp: d.hp, maxHp: d.maxHp, hpLabel: d.nickname + ' integrity', critical,
+        grenades: d.grenades, cards: d.cards, tokens: d.tokens, personalGold: d.personalGold,
+        weapons, weaponCountLabel: d.weapons.length + ' equipped',
+        effects, hasEffects: effects.length > 0,
+        notes: d.notes, hasNotes: !!d.notes,
+        statusLabel, statusIcon,
+        statusChipStyle: { display: 'inline-flex', alignItems: 'center', gap: '5px', flex: '0 0 auto', fontSize: '10.5px', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: statusColor, background: 'rgba(255,255,255,.03)', border: '1px solid ' + statusColor + '55', borderRadius: '7px', padding: '5px 9px' },
+        cardStyle: { background: benched ? '#15171c' : '#181b22', border: '1px solid ' + cardBorder, borderRadius: '16px', padding: '15px 14px', display: 'flex', flexDirection: 'column', gap: '14px', opacity: benched ? 0.7 : 1, boxShadow: d.leftBehind ? 'inset 3px 0 0 #ff5d5d' : 'none' },
+        leftBtnLabel: d.leftBehind ? 'Left Behind' : 'Mark Left Behind',
+        leftBtnStyle: { flex: '1 1 0', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, padding: '10px', borderRadius: '10px', cursor: 'pointer', color: d.leftBehind ? '#ff8a8a' : '#aab2c0', background: d.leftBehind ? 'rgba(255,93,93,.12)' : '#1b1f27', border: '1px solid ' + (d.leftBehind ? 'rgba(255,93,93,.3)' : '#2c313c') },
+        activeBtnLabel: d.active ? 'On Duty' : 'Benched',
+        activeBtnStyle: { flex: '1 1 0', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, padding: '10px', borderRadius: '10px', cursor: 'pointer', color: d.active ? '#7fe0a5' : '#7a828f', background: d.active ? 'rgba(74,222,128,.1)' : '#1b1f27', border: '1px solid ' + (d.active ? 'rgba(74,222,128,.28)' : '#2c313c') },
+        onHpDec: () => this.adjHp(d.id, -1), onHpInc: () => this.adjHp(d.id, +1),
+        onGrenDec: () => this.adjField(d.id, 'grenades', -1), onGrenInc: () => this.adjField(d.id, 'grenades', +1),
+        onCardDec: () => this.adjField(d.id, 'cards', -1), onCardInc: () => this.adjField(d.id, 'cards', +1),
+        onTokDec: () => this.adjField(d.id, 'tokens', -1), onTokInc: () => this.adjField(d.id, 'tokens', +1),
+        onGoldDec: () => this.adjField(d.id, 'personalGold', -1), onGoldInc: () => this.adjField(d.id, 'personalGold', +1),
+        onToggleLeftBehind: () => this.toggleDwarf(d.id, 'leftBehind'),
+        onToggleActive: () => this.toggleDwarf(d.id, 'active')
+      };
+    });
+
+    // ---- End Mission VM ----
+    const e = s.end;
+    const mkIcon = (d, col) => React.createElement('svg', { width: 13, height: 13, viewBox: '0 0 24 24', fill: col, 'aria-hidden': 'true' }, React.createElement('path', { d }));
+    const checkD = 'M9.6 16.2 4.8 11.4l1.7-1.7 3.1 3.1 7.2-7.2 1.7 1.7z';
+    const warnD = 'M12 4.2 21 19.4H3z';
+    const curMission = s.missions[c.missionIndex];
+    const escapedList = s.dwarves.filter(d => d.active).map(d => {
+      const esc = !!e.escaped[d.id];
+      return {
+        id: d.id, nickname: d.nickname, role: d.role,
+        escaped: esc,
+        btnLabel: esc ? 'Escaped' : 'Left Behind',
+        icon: mkIcon(esc ? checkD : warnD, esc ? '#7fe0a5' : '#ff8a8a'),
+        rowStyle: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', padding: '10px 12px', background: '#1b2027', border: '1px solid ' + (esc ? '#28323a' : '#3a2a30'), borderRadius: '11px' },
+        btnStyle: { display: 'inline-flex', alignItems: 'center', gap: '6px', flex: '0 0 auto', fontSize: '12px', fontWeight: 700, letterSpacing: '0.03em', padding: '9px 13px', borderRadius: '9px', cursor: 'pointer', color: esc ? '#7fe0a5' : '#ff8a8a', background: esc ? 'rgba(74,222,128,.12)' : 'rgba(255,93,93,.12)', border: '1px solid ' + (esc ? 'rgba(74,222,128,.3)' : 'rgba(255,93,93,.3)') },
+        onToggle: () => this.toggleEscaped(d.id)
+      };
+    });
+    const endEscCount = escapedList.filter(x => x.escaped).length;
+    const endShare = endEscCount > 0 ? Math.floor(e.gold / endEscCount) : 0;
+    const endLeftover = e.gold - endShare * endEscCount;
+    const endLeftNames = escapedList.filter(x => !x.escaped).map(x => x.nickname);
+    const seg = (active, col) => ({ flex: '1 1 0', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '7px', fontFamily: "'Saira Condensed', sans-serif", fontWeight: 700, fontSize: '16px', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '14px', borderRadius: '12px', cursor: 'pointer', color: active ? '#0f1115' : '#aab2c0', background: active ? col : '#1b1f27', border: '1px solid ' + (active ? col : '#2c313c') });
+    const objPill = (on) => ({ display: 'inline-flex', alignItems: 'center', gap: '6px', flex: '0 0 auto', fontSize: '12px', fontWeight: 700, letterSpacing: '0.03em', padding: '9px 13px', borderRadius: '9px', cursor: 'pointer', color: on ? '#7fe0a5' : '#7a828f', background: on ? 'rgba(74,222,128,.12)' : '#15181e', border: '1px solid ' + (on ? 'rgba(74,222,128,.3)' : '#272d38') });
+
+    // ---- Rig Shop VM ----
+    const shopTargets = s.dwarves.filter(d => d.active).map(d => {
+      const sel = d.id === s.shopTargetId;
+      return {
+        id: d.id, nickname: d.nickname,
+        onSelect: () => this.setShopTarget(d.id),
+        style: { display: 'inline-flex', alignItems: 'center', gap: '6px', flex: '0 0 auto', fontFamily: "'Saira Condensed', sans-serif", fontWeight: 600, fontSize: '15px', letterSpacing: '0.02em', padding: '8px 13px', borderRadius: '10px', cursor: 'pointer', whiteSpace: 'nowrap', color: sel ? '#1a1407' : '#cdd4df', background: sel ? '#ffb000' : '#1b1f27', border: '1px solid ' + (sel ? '#ffb000' : '#2c313c') }
+      };
+    });
+    const shopTargetName = (s.dwarves.find(d => d.id === s.shopTargetId) || {}).nickname || 'Team';
+    const tierDefs = [
+      { label: 'Nitra', match: i => i.currency === 'nitra' },
+      { label: '1 Gold', match: i => i.currency === 'gold' && i.cost === 1 },
+      { label: '2 Gold', match: i => i.currency === 'gold' && i.cost === 2 },
+      { label: '3 Gold', match: i => i.currency === 'gold' && i.cost === 3 }
+    ];
+    const shopGroups = tierDefs.map(t => {
+      const items = s.catalog.filter(t.match).map(item => {
+        const isGold = item.currency === 'gold';
+        const accent = isGold ? '#ffb000' : '#4aa3ff';
+        const bal = isGold ? c.teamGold : c.teamNitra;
+        const afford = bal >= item.cost;
+        return {
+          id: item.id, name: item.name, note: item.note,
+          costLabel: item.cost + (isGold ? 'G' : 'N'),
+          costChipStyle: { display: 'inline-flex', alignItems: 'center', gap: '4px', fontFamily: "'Saira Condensed', sans-serif", fontWeight: 700, fontSize: '14px', color: accent, background: 'rgba(255,255,255,.03)', border: '1px solid ' + accent + '44', borderRadius: '7px', padding: '3px 8px' },
+          accent,
+          buyLabel: afford ? 'Buy' : 'Short',
+          buyStyle: { flex: '0 0 auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '12.5px', fontWeight: 700, letterSpacing: '0.03em', padding: '9px 15px', borderRadius: '9px', cursor: afford ? 'pointer' : 'not-allowed', color: afford ? '#1a1407' : '#5b626e', background: afford ? accent : '#1b1f27', border: '1px solid ' + (afford ? accent : '#2c313c'), opacity: afford ? 1 : 0.7 },
+          onBuy: () => this.buy(item)
+        };
+      });
+      return { label: t.label, items, isNitra: t.label === 'Nitra' };
+    });
+    const spendLogVM = s.spendLog.map(sl => {
+      const isGold = sl.currency === 'gold';
+      return { id: sl.id, label: sl.label, target: sl.target, costLabel: '-' + sl.cost + (isGold ? 'G' : 'N'), color: isGold ? '#ffb000' : '#4aa3ff' };
+    });
+
+    // ---- Report overlay VM ----
+    const r = s.activeReport;
+    const reportIsConfisc = !!r && r.kind === 'confiscation';
+    const reportAccent = reportIsConfisc ? '#ffb000' : (r && r.result === 'failure' ? '#ff5d5d' : '#4ade80');
+
+    // home VM
+    const modeColors = { economy: ['#ffb000', 'rgba(255,176,0,.1)', 'rgba(255,176,0,.3)'], official: ['#4aa3ff', 'rgba(74,163,255,.1)', 'rgba(74,163,255,.3)'], deeper: ['#ff5d5d', 'rgba(255,93,93,.1)', 'rgba(255,93,93,.3)'] };
+    const homeCampaigns = s.homeCampaigns.map(cm => {
+      const mc = modeColors[cm.mode] || modeColors.official;
+      return {
+        id: cm.id, name: cm.name, last: cm.last, modeLabel: cm.modeLabel,
+        modeStyle: { flex: '0 0 auto', fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: mc[0], background: mc[1], border: '1px solid ' + mc[2], borderRadius: '6px', padding: '3px 7px' },
+        cardStyle: { background: '#181b22', border: '1px solid ' + (cm.active ? 'rgba(255,176,0,.35)' : '#262c36'), borderRadius: '15px', padding: '15px 14px', boxShadow: cm.active ? 'inset 3px 0 0 #ffb000' : 'none' },
+        openLabel: cm.active ? 'Resume' : 'Open',
+        openStyle: { flex: '1 1 0', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, padding: '11px', borderRadius: '10px', cursor: 'pointer', color: cm.active ? '#1a1407' : '#e7ebf2', background: cm.active ? '#ffb000' : '#222834', border: '1px solid ' + (cm.active ? '#ffb000' : '#333a47') },
+        onOpen: () => { this.setState({ route: 'dwarves' }); this.toast('Campaign loaded', 'ok'); },
+        onDelete: () => this.toast('Delete is disabled in the demo', 'warn')
+      };
+    });
+
+    // ---- Launch VM ----
+    const launchNext = s.missions[c.missionIndex + 1] || null;
+    const launchWarnings = launchNext ? launchNext.warnings.map(w => ({ label: w })) : [];
+    const launchReady = s.dwarves.filter(d => d.active).map(d => {
+      const pct = d.maxHp > 0 ? d.hp / d.maxHp : 0;
+      const hpColor = pct <= 0.25 ? '#ff5d5d' : pct <= 0.5 ? '#ffb000' : '#4ade80';
+      const lowAmmo = d.weapons.some(w => w.equipped && w.maxAmmo > 0 && w.ammo / w.maxAmmo <= 0.25);
+      const ready = pct > 0.25 && !lowAmmo && !d.leftBehind;
+      const sc = d.leftBehind ? '#ff5d5d' : (ready ? '#4ade80' : '#ffb000');
+      return {
+        id: d.id, nickname: d.nickname,
+        hpLabel: d.hp + '/' + d.maxHp, hpColor,
+        ammoLabel: lowAmmo ? 'Low ammo' : 'Loaded', ammoColor: lowAmmo ? '#ffb000' : '#7fe0a5',
+        grenLabel: d.grenades + ' nades',
+        leftBehind: d.leftBehind,
+        statusColor: sc,
+        statusIcon: React.createElement('svg', { width: 14, height: 14, viewBox: '0 0 24 24', fill: sc, 'aria-hidden': 'true' }, React.createElement('path', { d: d.leftBehind ? warnD : (ready ? checkD : warnD) })),
+        rowStyle: { display: 'flex', alignItems: 'center', gap: '10px', padding: '11px 12px', background: '#181b22', border: '1px solid ' + (d.leftBehind ? '#3a2a30' : '#262c36'), borderRadius: '12px' },
+        statusLabel: d.leftBehind ? 'Left behind' : (ready ? 'Ready' : 'Check')
+      };
+    });
+
+    // ---- History VM ----
+    const recipeVM = s.missions.map(m => {
+      const isCur = m.status === 'current';
+      const done = m.status === 'done';
+      const dotColor = done ? '#4ade80' : isCur ? '#ffb000' : '#3f4654';
+      return {
+        n: m.n, type: m.type, biome: m.biome,
+        isCurrent: isCur,
+        warnLabel: m.warnings.length ? m.warnings.length + ' warn' : 'clear',
+        dotStyle: { width: '10px', height: '10px', borderRadius: '50%', background: dotColor, flex: '0 0 auto', boxShadow: isCur ? '0 0 0 4px rgba(255,176,0,.18)' : 'none' },
+        rowStyle: { display: 'flex', alignItems: 'center', gap: '11px', padding: '11px 12px', background: isCur ? 'rgba(255,176,0,.06)' : '#181b22', border: '1px solid ' + (isCur ? 'rgba(255,176,0,.3)' : '#262c36'), borderRadius: '12px' },
+        numColor: done ? '#7a828f' : isCur ? '#ffb000' : '#5b626e'
+      };
+    });
+    const logVM = s.history.map(h => {
+      const isConf = h.kind === 'confiscation';
+      const col = isConf ? '#ffb000' : (h.result === 'failure' ? '#ff5d5d' : '#4ade80');
+      return {
+        id: h.id, title: h.title, ts: h.ts,
+        kindLabel: isConf ? 'Confiscation' : 'Report',
+        kindStyle: { fontFamily: "'IBM Plex Mono', monospace", fontSize: '9.5px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: col, background: 'rgba(255,255,255,.03)', border: '1px solid ' + col + '44', borderRadius: '5px', padding: '2px 6px' },
+        onOpen: () => this.openReport(h)
+      };
+    });
+    const catalogVM = s.catalog.map(item => {
+      const isGold = item.currency === 'gold';
+      return { id: item.id, name: item.name, note: item.note, costLabel: item.cost + (isGold ? 'G' : 'N'), color: isGold ? '#ffb000' : '#4aa3ff' };
+    });
+
+    // ---- Setup VM ----
+    const su = s.setup;
+    const modeOpts = [{ k: 'official', l: 'Official' }, { k: 'economy', l: 'Economy' }, { k: 'deeper', l: 'Deeper' }];
+    const setupModes = modeOpts.map(o => ({
+      label: o.l, onSelect: () => this.setSetup({ mode: o.k }),
+      style: { flex: '1 1 0', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Saira Condensed', sans-serif", fontWeight: 700, fontSize: '14px', letterSpacing: '0.02em', padding: '11px 6px', borderRadius: '10px', cursor: 'pointer', color: su.mode === o.k ? '#1a1407' : '#aab2c0', background: su.mode === o.k ? '#ffb000' : '#1b1f27', border: '1px solid ' + (su.mode === o.k ? '#ffb000' : '#2c313c') }
+    }));
+    const setupCounts = [1, 2, 3, 4].map(n => ({
+      n, onSelect: () => this.setCount(n),
+      style: { flex: '1 1 0', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Saira Condensed', sans-serif", fontWeight: 700, fontSize: '17px', padding: '11px', borderRadius: '10px', cursor: 'pointer', color: su.count === n ? '#1a1407' : '#cdd4df', background: su.count === n ? '#ffb000' : '#1b1f27', border: '1px solid ' + (su.count === n ? '#ffb000' : '#2c313c') }
+    }));
+    const diffOpts = [{ k: 'green', l: 'Greenbeard' }, { k: 'regular', l: 'Regular' }, { k: 'hazard4', l: 'Hazard 4' }, { k: 'hazard5', l: 'Hazard 5' }, { k: 'mgmt', l: 'Management Hates You' }];
+    const setupDiffs = diffOpts.map(o => ({
+      label: o.l, onSelect: () => this.setSetup({ difficulty: o.k }),
+      style: { display: 'inline-flex', alignItems: 'center', gap: '5px', flex: '0 0 auto', fontSize: '12.5px', fontWeight: 600, padding: '8px 12px', borderRadius: '999px', cursor: 'pointer', whiteSpace: 'nowrap', color: su.difficulty === o.k ? '#1a1407' : '#cdd4df', background: su.difficulty === o.k ? '#ffb000' : '#1b1f27', border: '1px solid ' + (su.difficulty === o.k ? '#ffb000' : '#2c313c') }
+    }));
+    const setupRoles = su.roles.slice(0, su.count).map((rl, i) => ({
+      slot: 'Slot ' + (i + 1), role: rl, onCycle: () => this.cycleRole(i)
+    }));
+
+    const stub = null;
+
+    const toast = s.toast;
+    const toastColors = { ok: ['#7fe0a5', 'rgba(74,222,128,.4)'], warn: ['#ffce6b', 'rgba(255,176,0,.4)'], err: ['#ff8a8a', 'rgba(255,93,93,.4)'] };
+    let toastIcon = null, toastStyle = null;
+    if (toast) {
+      const tc = toastColors[toast.kind] || toastColors.ok;
+      const h = React.createElement;
+      toastIcon = h('span', { style: { width: '7px', height: '7px', borderRadius: '50%', background: tc[0], flex: '0 0 auto' } });
+      toastStyle = { position: 'absolute', left: '50%', bottom: '82px', transform: 'translateX(-50%)', display: 'inline-flex', alignItems: 'center', gap: '9px', maxWidth: '320px', background: '#1b1f27', border: '1px solid ' + tc[1], color: '#e7ebf2', fontSize: '12.5px', fontWeight: 500, padding: '11px 15px', borderRadius: '11px', boxShadow: '0 12px 30px -10px rgba(0,0,0,.7)', animation: 'qmToastIn .18s ease', zIndex: 50 };
+    }
+
+    return {
+      yes, cap: 99,
+      campName: c.name, modeLabel: c.modeLabel, missionLabel,
+      teamGold: c.teamGold, teamNitra: c.teamNitra,
+      isDwarves: route === 'dwarves', isHome: route === 'home',
+      isStub: !!stub,
+      isEnd: route === 'end',
+      endMissionLabel: 'Mission ' + (c.missionIndex + 1) + ' · ' + curMission.biome,
+      endSuccessStyle: seg(e.result === 'success', '#4ade80'),
+      endFailStyle: seg(e.result === 'failure', '#ff5d5d'),
+      onResultSuccess: () => this.setEnd({ result: 'success' }),
+      onResultFail: () => this.setEnd({ result: 'failure' }),
+      endPrimaryStyle: objPill(e.primary), endPrimaryLabel: e.primary ? 'Complete' : 'Not done',
+      endSecondaryStyle: objPill(e.secondary), endSecondaryLabel: e.secondary ? 'Complete' : 'Skipped',
+      onTogglePrimary: () => this.setEnd({ primary: !e.primary }),
+      onToggleSecondary: () => this.setEnd({ secondary: !e.secondary }),
+      endGold: e.gold, endNitra: e.nitra,
+      onEndGoldDec: () => this.adjEnd('gold', -1), onEndGoldInc: () => this.adjEnd('gold', 1),
+      onEndNitraDec: () => this.adjEnd('nitra', -1), onEndNitraInc: () => this.adjEnd('nitra', 1),
+      escapedList, endShare, endLeftover, endEscCount,
+      endHasLeft: endLeftNames.length > 0, endLeftNames: endLeftNames.join(', '),
+      onFileReport: () => this.fileReport(),
+      hasReport: !!r,
+      reportTitle: r ? r.title : '', reportTs: r ? r.ts : '',
+      reportLines: r ? r.lines.map((l, i) => ({ k: l[0], v: l[1], rowStyle: { display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '8px 0', borderBottom: i < r.lines.length - 1 ? '1px dashed #2c313c' : 'none' } })) : [],
+      reportFlavour: r ? r.flavour : '',
+      reportAccent, reportKindLabel: reportIsConfisc ? 'Confiscation Notice' : 'Management Report',
+      onReportCopy: () => this.copyReport(r), onReportClose: () => this.closeReport(),
+      isShop: route === 'shop',
+      shopTargets, shopTargetName, shopGroups, spendLog: spendLogVM,
+      hasSpend: spendLogVM.length > 0,
+      onEditCatalog: () => this.toast('Catalog editor lives in History', 'warn'),
+      isLaunch: route === 'launch',
+      launchHasNext: !!launchNext,
+      launchNum: launchNext ? launchNext.n : 0,
+      launchType: launchNext ? launchNext.type : '—',
+      launchBiome: launchNext ? launchNext.biome : 'Campaign complete',
+      launchWarnings, launchHasWarnings: launchWarnings.length > 0,
+      launchReady,
+      launchGold: c.teamGold, launchNitra: c.teamNitra,
+      launchWillLose: c.teamGold + c.teamNitra > 0,
+      isLaunchStep1: s.launchStep === 1,
+      isLaunchStep0: s.launchStep === 0,
+      isHistory: route === 'history',
+      recipe: recipeVM, log: logVM, hasLog: logVM.length > 0, catalogList: catalogVM, seedLabel: c.seed,
+      onExportState: () => this.exportState(), onExportRecipe: () => this.exportRecipe(),
+      onEditItem: () => this.toast('Item editor is read-only in the demo', 'warn'),
+      isSetup: route === 'setup',
+      setupName: su.name, setupModes, setupCounts, setupDiffs, setupRoles,
+      setupSeed: su.seed, onReroll: () => this.rerollSeed(), onCreate: () => this.createCampaign(),
+      onNameEdit: () => this.toast('Name editing is stubbed in the demo', 'warn'),
+      onLaunchReview: () => this.launchConfirm(),
+      onLaunchConfirm: () => this.launchConfirm(),
+      onLaunchCancel: () => this.launchCancel(),
+      stubTitle: stub ? stub.title : '', stubBody: stub ? stub.body : '', stubIcon: stub ? this.icon(stub.icon, 26, '#3f4654') : null,
+      crewCount: s.dwarves.filter(d => d.active).length,
+      dwarves, homeCampaigns, navItems,
+      goHome: () => this.nav('home'), goSetup: () => this.nav('setup'), goEnd: () => this.nav('end'),
+      onImport: () => this.toast('Paste campaign JSON to import', 'ok'),
+      pressDim: { transform: 'scale(0.97)', filter: 'brightness(1.12)' },
+      hasToast: !!toast, toastMsg: toast ? toast.msg : '', toastIcon, toastStyle
+    };
+  }
+}
+</script>
+</body>
+</html>

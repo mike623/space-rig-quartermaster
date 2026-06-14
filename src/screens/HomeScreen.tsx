@@ -1,17 +1,24 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../state/store";
+import { MODE_LABEL } from "../ui/labels";
+import { PlusIcon, ImportIcon, TrashIcon } from "../components/icons";
+
+const MODE_CHIP: Record<string, string> = {
+  economy: "",
+  official: "nitra",
+  hardcore: "danger"
+};
 
 export function HomeScreen() {
   const summaries = useStore((s) => s.summaries);
   const selectCampaign = useStore((s) => s.selectCampaign);
   const removeCampaign = useStore((s) => s.removeCampaign);
   const importState = useStore((s) => s.importState);
+  const showToast = useStore((s) => s.showToast);
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
-  const [msg, setMsg] = useState<{ kind: "err" | "ok"; text: string } | null>(
-    null
-  );
+  const [err, setErr] = useState<string | null>(null);
 
   const open = (id: string) => {
     selectCampaign(id);
@@ -22,61 +29,82 @@ export function HomeScreen() {
     const text = await file.text();
     const result = importState(text);
     if (!result.ok) {
-      setMsg({ kind: "err", text: result.error ?? "Import failed" });
+      setErr(result.error ?? "Import failed");
       return;
     }
-    setMsg({
-      kind: "ok",
-      text: ["Campaign imported.", ...(result.warnings ?? [])].join(" ")
-    });
+    showToast(["Campaign imported", ...(result.warnings ?? [])].join(" · "), "ok");
     navigate("/characters");
   };
 
-  return (
-    <div>
-      {msg ? <div className={`banner ${msg.kind}`}>{msg.text}</div> : null}
+  const sorted = summaries
+    .slice()
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 
-      <div className="card">
-        <h2>Campaigns</h2>
-        {summaries.length === 0 ? (
-          <p className="muted">No saved campaigns yet. Create one to start.</p>
-        ) : (
-          summaries
-            .slice()
-            .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
-            .map((s) => (
-              <div key={s.id} className="shop-item">
-                <div onClick={() => open(s.id)} style={{ flex: 1 }}>
-                  <strong>{s.name}</strong>
-                  <div className="muted" style={{ fontSize: 12 }}>
-                    {s.mode} · {new Date(s.updatedAt).toLocaleString()}
-                  </div>
-                </div>
-                <button className="primary" onClick={() => open(s.id)}>
-                  Open
-                </button>
-                <button
-                  className="danger"
-                  onClick={() => {
-                    if (confirm(`Delete "${s.name}"? This cannot be undone.`)) {
-                      removeCampaign(s.id);
-                    }
-                  }}
-                >
-                  Delete
-                </button>
-              </div>
-            ))
-        )}
+  return (
+    <>
+      <div className="row between end">
+        <div>
+          <div className="eyebrow">Saved Campaigns</div>
+          <div className="screen-title">Pick a Dig</div>
+        </div>
       </div>
 
-      <button className="primary full" onClick={() => navigate("/setup")}>
-        + New Campaign
-      </button>
-      <div className="spacer" />
-      <button className="full" onClick={() => fileRef.current?.click()}>
-        Import Campaign JSON
-      </button>
+      {err && <div className="banner err">{err}</div>}
+
+      {sorted.length === 0 ? (
+        <div className="card">
+          <div className="empty">No saved campaigns yet. Assemble a crew to start.</div>
+        </div>
+      ) : (
+        sorted.map((c) => (
+          <div className="card" key={c.id} style={{ gap: 12 }}>
+            <div className="row between" style={{ alignItems: "flex-start" }}>
+              <div style={{ minWidth: 0 }}>
+                <div className="display" style={{ fontWeight: 700, fontSize: 19, lineHeight: 1.1 }}>
+                  {c.name}
+                </div>
+                <div className="mono" style={{ fontSize: 11, color: "var(--muted-3)", marginTop: 4 }}>
+                  {new Date(c.updatedAt).toLocaleString()}
+                </div>
+              </div>
+              <span className={`mode-chip ${MODE_CHIP[c.mode] ?? ""}`}>
+                {MODE_LABEL[c.mode]}
+              </span>
+            </div>
+            <div className="row" style={{ gap: 8 }}>
+              <button className="btn primary" style={{ flex: 1, fontSize: 13, padding: 11 }} onClick={() => open(c.id)}>
+                Open
+              </button>
+              <button
+                className="icon-btn"
+                style={{ width: 42, height: "auto" }}
+                aria-label="Delete campaign"
+                onClick={() => {
+                  if (confirm(`Delete "${c.name}"? This cannot be undone.`)) {
+                    removeCampaign(c.id);
+                    showToast("Campaign deleted", "warn");
+                  }
+                }}
+              >
+                <TrashIcon />
+              </button>
+            </div>
+          </div>
+        ))
+      )}
+
+      <div className="row" style={{ gap: 8 }}>
+        <button
+          className="btn primary"
+          style={{ flex: 1, fontSize: 14, padding: 14, textTransform: "none" }}
+          onClick={() => navigate("/setup")}
+        >
+          <PlusIcon /> New Campaign
+        </button>
+        <button className="btn" onClick={() => fileRef.current?.click()}>
+          <ImportIcon /> Import
+        </button>
+      </div>
       <input
         ref={fileRef}
         type="file"
@@ -88,6 +116,6 @@ export function HomeScreen() {
           e.target.value = "";
         }}
       />
-    </div>
+    </>
   );
 }

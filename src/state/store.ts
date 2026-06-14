@@ -32,9 +32,22 @@ function now(): string {
   return new Date().toISOString();
 }
 
+export type ToastKind = "ok" | "warn" | "err";
+export interface Toast {
+  msg: string;
+  kind: ToastKind;
+}
+
 interface StoreState {
   summaries: storage.CampaignSummary[];
   campaign: Campaign | null;
+  toast: Toast | null;
+  activeReport: ManagementReport | null;
+
+  showToast: (msg: string, kind?: ToastKind) => void;
+  dismissToast: () => void;
+  openReport: (report: ManagementReport) => void;
+  closeReport: () => void;
 
   refreshSummaries: () => void;
   newCampaign: (opts: Omit<CreateCampaignOptions, "now">) => void;
@@ -75,6 +88,20 @@ export const useStore = create<StoreState>((set, get) => ({
     const id = storage.getActiveCampaignId();
     return id ? storage.loadCampaign(id) : null;
   })(),
+  toast: null,
+  activeReport: null,
+
+  showToast: (msg, kind = "ok") => {
+    set({ toast: { msg, kind } });
+    const handle = (globalThis as { _qmToast?: ReturnType<typeof setTimeout> })
+      ._qmToast;
+    if (handle) clearTimeout(handle);
+    (globalThis as { _qmToast?: ReturnType<typeof setTimeout> })._qmToast =
+      setTimeout(() => set({ toast: null }), 2300);
+  },
+  dismissToast: () => set({ toast: null }),
+  openReport: (report) => set({ activeReport: report }),
+  closeReport: () => set({ activeReport: null }),
 
   refreshSummaries: () => set({ summaries: storage.listCampaigns() }),
 
@@ -129,6 +156,7 @@ export const useStore = create<StoreState>((set, get) => ({
       targetCharacterId: target?.characterId
     });
     if (!result.ok || !result.entry) {
+      get().showToast(result.reason ?? "Cannot buy", "err");
       return { ok: false, reason: result.reason };
     }
 
@@ -151,6 +179,7 @@ export const useStore = create<StoreState>((set, get) => ({
         } satisfies LogEntry
       ]
     }));
+    get().showToast(applied.description, "ok");
     return { ok: true, description: applied.description };
   },
 
@@ -213,12 +242,22 @@ export const useStore = create<StoreState>((set, get) => ({
         } satisfies LogEntry
       ]
     }));
+    set({ activeReport: report });
+    get().showToast("Report filed · resources banked", "ok");
     return report;
   },
 
   launchNextMission: () => {
     const c = get().campaign!;
     const conf = confiscate(c);
+    const confReport = buildManagementReport({
+      spending: [],
+      confiscatedGold: conf.confiscatedGold,
+      confiscatedNitra: conf.confiscatedNitra,
+      penaltiesApplied: [],
+      notes: "Pre-launch confiscation",
+      flavourSeed: Math.random()
+    });
     get().patch((camp) => ({
       ...camp,
       resources: conf.resources,
@@ -230,10 +269,13 @@ export const useStore = create<StoreState>((set, get) => ({
           kind: "confiscation",
           missionIndex: camp.currentMissionIndex,
           at: now(),
-          title: `Management confiscated ${conf.confiscatedGold} Gold, ${conf.confiscatedNitra} Nitra`
+          title: `Management confiscated ${conf.confiscatedGold} Gold, ${conf.confiscatedNitra} Nitra`,
+          report: confReport
         } satisfies LogEntry
       ]
     }));
+    set({ activeReport: confReport });
+    get().showToast("Resources confiscated · descent authorised", "warn");
     return {
       confiscatedGold: conf.confiscatedGold,
       confiscatedNitra: conf.confiscatedNitra

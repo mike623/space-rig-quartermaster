@@ -11,7 +11,10 @@ import type {
   WeaponSlot
 } from "./types";
 
-const DEFAULT_MAX_HP = 10;
+// Calibrated to board-game scale: a dwarf carries 5 health and 5 ammo per
+// weapon slot. Numbers are generic game facts; all names remain custom.
+const DEFAULT_MAX_HP = 5;
+const DEFAULT_AMMO = 5;
 
 export interface WeaponTemplate {
   name: string;
@@ -25,36 +28,36 @@ export const CLASS_TEMPLATES: Record<
   { nickname: string; weapons: WeaponTemplate[] }
 > = {
   scout: {
-    nickname: "Scout",
+    nickname: "Surveyor",
     weapons: [
-      { name: "Primary Rifle", slot: "primary", maxAmmo: 6 },
-      { name: "Sidearm", slot: "secondary", maxAmmo: 4 }
+      { name: "Primary Rifle", slot: "primary", maxAmmo: DEFAULT_AMMO },
+      { name: "Sidearm", slot: "secondary", maxAmmo: DEFAULT_AMMO }
     ]
   },
   engineer: {
     nickname: "Engineer",
     weapons: [
-      { name: "Shotgun", slot: "primary", maxAmmo: 5 },
-      { name: "Platform Tool", slot: "secondary", maxAmmo: 4 }
+      { name: "Shotgun", slot: "primary", maxAmmo: DEFAULT_AMMO },
+      { name: "Platform Tool", slot: "secondary", maxAmmo: DEFAULT_AMMO }
     ]
   },
   gunner: {
     nickname: "Gunner",
     weapons: [
-      { name: "Heavy Gun", slot: "primary", maxAmmo: 8 },
-      { name: "Revolver", slot: "secondary", maxAmmo: 4 }
+      { name: "Heavy Gun", slot: "primary", maxAmmo: DEFAULT_AMMO },
+      { name: "Revolver", slot: "secondary", maxAmmo: DEFAULT_AMMO }
     ]
   },
   driller: {
     nickname: "Driller",
     weapons: [
-      { name: "Flame Weapon", slot: "primary", maxAmmo: 6 },
-      { name: "Pistol", slot: "secondary", maxAmmo: 4 }
+      { name: "Flame Weapon", slot: "primary", maxAmmo: DEFAULT_AMMO },
+      { name: "Pistol", slot: "secondary", maxAmmo: DEFAULT_AMMO }
     ]
   },
   custom: {
     nickname: "Dwarf",
-    weapons: [{ name: "Weapon", slot: "primary", maxAmmo: 6 }]
+    weapons: [{ name: "Weapon", slot: "primary", maxAmmo: DEFAULT_AMMO }]
   }
 };
 

@@ -3,7 +3,8 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  base: command === "build" ? "/space-rig-quartermaster/" : "/",
   plugins: [
     react(),
     VitePWA({
@@ -28,4 +29,4 @@ export default defineConfig({
     globals: true,
     include: ["src/**/*.test.ts"]
   }
-});
+}));

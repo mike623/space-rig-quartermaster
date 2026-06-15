@@ -25,8 +25,23 @@ export default defineConfig(({ command }) => ({
     })
   ],
   test: {
+    // Node by default (fast for pure domain tests). DOM tests opt in per file
+    // with `// @vitest-environment jsdom`.
     environment: "node",
     globals: true,
-    include: ["src/**/*.test.ts"]
+    setupFiles: ["src/test/setup.ts"],
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html"],
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: [
+        "src/**/*.test.{ts,tsx}",
+        "src/test/**",
+        "src/main.tsx",
+        "src/vite-env.d.ts",
+        "src/domain/types.ts"
+      ]
+    }
   }
 }));

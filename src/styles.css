@@ -502,6 +502,9 @@ label.field-label {
   padding: 8px 12px;
   color: #cdd4df;
 }
+.pill.compact.sel {
+  color: #1a1407;
+}
 
 /* chips & tags */
 .tag {

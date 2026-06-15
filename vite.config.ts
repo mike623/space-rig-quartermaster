@@ -3,7 +3,8 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  base: command === "build" ? "/space-rig-quartermaster/" : "/",
   plugins: [
     react(),
     VitePWA({
@@ -24,8 +25,23 @@ export default defineConfig({
     })
   ],
   test: {
+    // Node by default (fast for pure domain tests). DOM tests opt in per file
+    // with `// @vitest-environment jsdom`.
     environment: "node",
     globals: true,
-    include: ["src/**/*.test.ts"]
+    setupFiles: ["src/test/setup.ts"],
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html"],
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: [
+        "src/**/*.test.{ts,tsx}",
+        "src/test/**",
+        "src/main.tsx",
+        "src/vite-env.d.ts",
+        "src/domain/types.ts"
+      ]
+    }
   }
-});
+}));

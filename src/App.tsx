@@ -93,14 +93,14 @@ export function App() {
             <div className="res-pill gold">
               <GoldIcon />
               <div className="stack">
-                <span className="n">{campaign.resources.teamGold}</span>
+                <span className="n">{campaign.resources.teamGold ?? 0}</span>
                 <span className="lbl">Gold</span>
               </div>
             </div>
             <div className="res-pill nitra">
               <NitraIcon />
               <div className="stack">
-                <span className="n">{campaign.resources.teamNitra}</span>
+                <span className="n">{campaign.resources.teamNitra ?? 0}</span>
                 <span className="lbl">Nitra</span>
               </div>
             </div>

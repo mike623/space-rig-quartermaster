@@ -16,3 +16,7 @@ docs/private-source-documents/
 
 # test coverage
 coverage/
+
+# playwright e2e artifacts (screenshots under docs/ are committed)
+test-results/
+playwright-report/

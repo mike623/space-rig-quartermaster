@@ -34,6 +34,28 @@ Quartermaster keeps the bookkeeping off the table. Spin up a campaign, manage yo
 | Launch | Pre-mission readiness checks |
 | History | Management reports and campaign log |
 
+## Screens
+
+<table>
+  <tr>
+    <td align="center" width="33%"><img src="docs/screenshots/home-empty.png" alt="Home — saved campaigns" /><br /><sub><b>Home</b> · pick a dig</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/setup.png" alt="Campaign setup" /><br /><sub><b>Setup</b> · mode, players, seed</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/characters.png" alt="Characters roster" /><br /><sub><b>Characters</b> · HP, ammo, crew</sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><img src="docs/screenshots/end-mission.png" alt="End mission debrief" /><br /><sub><b>End Mission</b> · debrief &amp; resources</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/shop.png" alt="Rig Shop" /><br /><sub><b>Rig Shop</b> · spend resources</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/launch.png" alt="Launch readiness check" /><br /><sub><b>Launch</b> · readiness check</sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><img src="docs/screenshots/history.png" alt="History and reports" /><br /><sub><b>History</b> · recipe &amp; reports</sub></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+> Screenshots are generated, not hand-pasted — `npm run e2e` drives the app through a real campaign (fixed seed `ROCKANDSTONE`) and captures every screen, so they never drift from the UI. See [`e2e/screens.spec.ts`](e2e/screens.spec.ts).
+
 ## Tech stack
 
 - **Vite + React + TypeScript**
@@ -60,6 +82,7 @@ npm run dev      # start dev server at http://localhost:5173
 | `npm run build` | Typecheck (`tsc -b`) + production build |
 | `npm run preview` | Serve the production build locally |
 | `npm run test` | Run the vitest domain test suite |
+| `npm run e2e` | Playwright walkthrough — smoke-tests every screen and regenerates the screenshots above |
 
 Run a single test file or match by name:
 
